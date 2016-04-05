@@ -1,0 +1,12 @@
+    def test_<method_name>(self):
+        expect_request_str = '''<expect_str>'''
+        expect_str = self._convertRequestStr(expect_request_str)
+
+        self.api_session.<method_name>(<attributes_list>)
+
+        self.assertTrue('<method_name_attr>' in TestCloudShellAPISession.REQUEST_DATA)
+        received_str = self._convertRequestStr(TestCloudShellAPISession.REQUEST_DATA['<method_name_attr>'])
+        self.assertEqual(expect_str, received_str)
+
+        TestCloudShellAPISession.REQUEST_DATA.pop('<method_name_attr>', None)
+

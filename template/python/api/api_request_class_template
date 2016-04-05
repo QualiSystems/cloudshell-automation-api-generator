@@ -1,0 +1,7 @@
+class <request_name>(CommonAPIRequest):
+    def __init__(self, <args>):
+        """
+<comments>
+        """
+        CommonAPIRequest.__init__(self, <args_in_method>)
+

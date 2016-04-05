@@ -1,0 +1,5 @@
+std::string CloudShellAPISession::<method_name>(<arguments>) {
+        /**
+             <description>
+        **/
+        return self.generateAPIRequest({{"method_name", "<method_name>"}, <arguments_in_method>})

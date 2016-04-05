@@ -1,0 +1,6 @@
+    def <method_name>(self<arguments>):
+        """
+            <description>
+        """
+        return self.generateAPIRequest(OrderedDict([('method_name', '<method_name_attr>')<arguments_in_method>]))
+
