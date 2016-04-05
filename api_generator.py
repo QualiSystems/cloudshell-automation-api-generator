@@ -171,7 +171,7 @@ class CloudShellAPIGenerator:
 
         self._package_version = version
 
-        self._package_filename = package_filename + self._package_version
+        self._package_filename = package_filename + '-' + self._package_version
         self._is_debug = is_debug
 
         self._inserted_request_classes = dict()
