@@ -166,9 +166,8 @@ class CloudShellAPIGenerator:
         self._version = int(version_part[0])
 
         self._package_prefix = '/api/'
-        self._helpers_prefix = '/helpers/'
+        self._helpers_prefix = 'helpers/'
         self._script_helpers_prefix = 'scripts/'
-
 
         self._package_name = package_name
 
@@ -176,7 +175,7 @@ class CloudShellAPIGenerator:
 
         self._package_version = version
 
-        self._package_filename = package_filename + self._package_version
+        self._package_filename = package_filename + '-' + self._package_version
         self._is_debug = is_debug
 
         self._inserted_request_classes = dict()
@@ -296,20 +295,17 @@ class CloudShellAPIGenerator:
             tar.add(self.folder_prefix + key, arcname=self._package_root_folder + self._package_prefix + key)
         tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + '/__init__.py')
 
-        tarFolder = tarfile.TarInfo(self._package_root_folder + self._helpers_prefix)
+        tarFolder = tarfile.TarInfo(self._package_root_folder + self._package_prefix + self._helpers_prefix)
         tarFolder.type = tarfile.DIRTYPE
         tar.addfile(tarFolder)
-        tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + self._helpers_prefix + '__init__.py')
+        tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + self._package_prefix + self._helpers_prefix + '__init__.py')
 
-
-        tarFolder = tarfile.TarInfo(self._package_root_folder + self._helpers_prefix + self._script_helpers_prefix)
+        tarFolder = tarfile.TarInfo(self._package_root_folder + self._package_prefix + self._helpers_prefix + self._script_helpers_prefix)
         tarFolder.type = tarfile.DIRTYPE
         tar.addfile(tarFolder)
-        tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + self._helpers_prefix + self._script_helpers_prefix + '__init__.py')
-
-
+        tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + self._package_prefix + self._helpers_prefix + self._script_helpers_prefix + '__init__.py')
         for key in self.script_helper_resources:
-            tar.add(self.folder_prefix + key, arcname=self._package_root_folder + self._helpers_prefix + self._script_helpers_prefix + key)
+            tar.add(self.folder_prefix + key, arcname=self._package_root_folder + self._package_prefix + self._helpers_prefix + self._script_helpers_prefix + key)
 
         for key in self.package_resources:
             tar.add(self.folder_prefix + key, arcname=key)
