@@ -150,6 +150,7 @@ class CloudShellAPIGenerator:
 
         self.folder_prefix = output_folder + '/'
         self.resources = dict()
+        self.script_helper_resources = dict()
 
         self._api_method_flag = '# begin API'
         self._api_response_class_flag = '# begin response class'
@@ -165,13 +166,17 @@ class CloudShellAPIGenerator:
         self._version = int(version_part[0])
 
         self._package_prefix = '/api/'
+        self._helpers_prefix = '/helpers/'
+        self._script_helpers_prefix = 'scripts/'
+
+
         self._package_name = package_name
 
         self._package_root_folder = package_root_folder
 
         self._package_version = version
 
-        self._package_filename = package_filename + '-' + self._package_version
+        self._package_filename = package_filename + self._package_version
         self._is_debug = is_debug
 
         self._inserted_request_classes = dict()
@@ -180,28 +185,28 @@ class CloudShellAPIGenerator:
     def isSevenVersion(self):
         return (self._version >= 7)
 
-   # def _read_resources(self):
-   #     if not os.path.exists(self.folder_prefix):
-   #         os.makedirs(self.folder_prefix)
-#
-   #     self.api_method_template = StringIO(LoadResource(0, u'API_METHOD_TMP', 1)).read()
-   #     self.api_response_class_template = StringIO(LoadResource(0, u'API_RESPONSE_TMP', 1)).read()
-   #     self.test_api_method_template = StringIO(LoadResource(0, u'TEST_API_METHOD_TMP', 1)).read()
-#
-   #     name = 'common_cloudshell_api.py'
-   #     data = StringIO(LoadResource(0, u'COMMON_API', 1)).read()
-   #     self.resources[name] = GeneratorResource(name, data)
-#
-   #     name = 'cloudshell_api.py'
-   #     if self.isSevenVersion():
-   #         data = StringIO(LoadResource(0, u'API_V7', 1)).read()
-   #     else:
-   #         data = StringIO(LoadResource(0, u'API_V6', 1)).read()
-   #     self.resources[name] = GeneratorResource(name, data)
-#
-   #     name = 'test_cloudshell_api.py'
-   #     data = StringIO(LoadResource(0, u'API_TEST', 1)).read()
-   #     self.resources[name] = GeneratorResource(name, data)
+        # def _read_resources(self):
+        #     if not os.path.exists(self.folder_prefix):
+        #         os.makedirs(self.folder_prefix)
+    #
+    #     self.api_method_template = StringIO(LoadResource(0, u'API_METHOD_TMP', 1)).read()
+    #     self.api_response_class_template = StringIO(LoadResource(0, u'API_RESPONSE_TMP', 1)).read()
+    #     self.test_api_method_template = StringIO(LoadResource(0, u'TEST_API_METHOD_TMP', 1)).read()
+    #
+    #     name = 'common_cloudshell_api.py'
+    #     data = StringIO(LoadResource(0, u'COMMON_API', 1)).read()
+    #     self.resources[name] = GeneratorResource(name, data)
+    #
+    #     name = 'cloudshell_api.py'
+    #     if self.isSevenVersion():
+    #         data = StringIO(LoadResource(0, u'API_V7', 1)).read()
+    #     else:
+    #         data = StringIO(LoadResource(0, u'API_V6', 1)).read()
+    #     self.resources[name] = GeneratorResource(name, data)
+    #
+    #     name = 'test_cloudshell_api.py'
+    #     data = StringIO(LoadResource(0, u'API_TEST', 1)).read()
+    #     self.resources[name] = GeneratorResource(name, data)
 
     def _read_resources_not_exe(self):
         if not os.path.exists(self.folder_prefix):
@@ -236,11 +241,11 @@ class CloudShellAPIGenerator:
 
             name = 'cloudshell_dev_helpers.py'
             data = open('template/python/api/cloudshell_dev_helpers.py').read()
-            self.resources[name] = GeneratorResource(name, data)
+            self.script_helper_resources[name] = GeneratorResource(name, data)
 
             name = 'cloudshell_scripts_helpers.py'
             data = open('template/python/api/cloudshell_scripts_helpers.py').read()
-            self.resources[name] = GeneratorResource(name, data)
+            self.script_helper_resources[name] = GeneratorResource(name, data)
 
             name = 'README.txt'
             data = open('template/python/package/README.txt').read()
@@ -279,6 +284,9 @@ class CloudShellAPIGenerator:
         for key, object in self.package_resources.items():
             self._write_data(self.folder_prefix + object.name, object.data)
 
+        for key, object in self.script_helper_resources.items():
+            self._write_data(self.folder_prefix + object.name, object.data)
+
     def _pack_data(self):
         tar = tarfile.open(self.folder_prefix + self._package_filename + ".tar.gz", "w:gz")
         tarFolder = tarfile.TarInfo(self._package_root_folder + self._package_prefix)
@@ -288,9 +296,27 @@ class CloudShellAPIGenerator:
             tar.add(self.folder_prefix + key, arcname=self._package_root_folder + self._package_prefix + key)
         tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + '/__init__.py')
 
+        tarFolder = tarfile.TarInfo(self._package_root_folder + self._helpers_prefix)
+        tarFolder.type = tarfile.DIRTYPE
+        tar.addfile(tarFolder)
+        tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + self._helpers_prefix + '__init__.py')
+
+
+        tarFolder = tarfile.TarInfo(self._package_root_folder + self._helpers_prefix + self._script_helpers_prefix)
+        tarFolder.type = tarfile.DIRTYPE
+        tar.addfile(tarFolder)
+        tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + self._helpers_prefix + self._script_helpers_prefix + '__init__.py')
+
+
+        for key in self.script_helper_resources:
+            tar.add(self.folder_prefix + key, arcname=self._package_root_folder + self._helpers_prefix + self._script_helpers_prefix + key)
+
         for key in self.package_resources:
             tar.add(self.folder_prefix + key, arcname=key)
         tar.close()
+
+        for key in self.script_helper_resources:
+            os.remove(self.folder_prefix + key)
 
         for key in self.resources:
             os.remove(self.folder_prefix + key)
@@ -568,7 +594,7 @@ class CloudShellAPIGenerator:
                 self._add_attribute_data(response_data, class_name, attribute_name, attribute_type)
             elif node_name == (xs_prefix + 'complexContent'):
                 self._parse_response_xsd_object(xs_prefix, child_node, parent_node, class_name, class_data_map,
-                                             response_data)
+                                                response_data)
             elif node_name == (xs_prefix + 'extension'):
                 base_type = XMLWrapper.get_node_attr(child_node, 'base')
                 if base_type is not None:
@@ -577,12 +603,12 @@ class CloudShellAPIGenerator:
                         response_data.parent_type = base_type
 
                 self._parse_response_xsd_object(xs_prefix, child_node, parent_node, class_name, class_data_map,
-                                             response_data)
+                                                response_data)
             elif node_name == (xs_prefix + 'sequence'):
                 parent_node_name = XMLWrapper.get_node_name(parent_node)
                 if parent_node_name == (xs_prefix + 'complexType'):
                     self._parse_response_xsd_object(xs_prefix, child_node, parent_node, class_name, class_data_map,
-                                                 response_data)
+                                                    response_data)
             elif node_name == (xs_prefix + 'element'):
                 attribute_name = self._get_node_mandatory_attribute(child_node, 'name')
                 attribute_type = XMLWrapper.get_node_attr(child_node, 'type')
@@ -594,9 +620,15 @@ class CloudShellAPIGenerator:
 
                     inner_node = XMLWrapper.get_child_node(inner_type_node, 'attribute', xs_prefix)
                     if inner_node is not None:
-                        self._add_attribute_data(response_data, class_name, attribute_name, attribute_name)
-                        self._parse_response_xsd_object(xs_prefix, inner_type_node, inner_type_node, attribute_name,
-                                                     class_data_map)
+                        if attribute_name.endswith('s'):
+                            self._add_attribute_data(response_data, class_name, attribute_name,  attribute_name[:-1],
+                                                     'object_list')
+                            self._parse_response_xsd_object(xs_prefix, inner_type_node, inner_type_node,
+                                                            attribute_name[:-1], class_data_map)
+                        else:
+                            self._add_attribute_data(response_data, class_name, attribute_name, attribute_name)
+                            self._parse_response_xsd_object(xs_prefix, inner_type_node, inner_type_node, attribute_name,
+                                                            class_data_map)
                     else:
                         inner_node = XMLWrapper.get_child_node(inner_type_node, 'sequence', xs_prefix)
                         if inner_node is not None:
@@ -608,19 +640,24 @@ class CloudShellAPIGenerator:
                             inner_element_type = XMLWrapper.get_node_attr(inner_element_node, 'type')
 
                             if inner_element_type is None:
-                                inner_element_complex_node = XMLWrapper.get_child_node(inner_element_node, 'complexType',
-                                                                                     xs_prefix)
+                                inner_element_complex_node = XMLWrapper.get_child_node(inner_element_node,
+                                                                                       'complexType',
+                                                                                       xs_prefix)
                                 if inner_element_complex_node is None:
-                                    raise Exception('API Generator', "Element without type doesn't has 'complexType' node!")
+                                    raise Exception('API Generator', "Element without type doesn't has "
+                                                                     "'complexType' node!")
 
-                                self._add_attribute_data(response_data, class_name, attribute_name, inner_element_name,
-                                                       'object_list')
+                                self._add_attribute_data(response_data, class_name, attribute_name,
+                                                         inner_element_name,
+                                                         'object_list')
                                 self._parse_response_xsd_object(xs_prefix, inner_element_complex_node,
-                                                             inner_element_complex_node, inner_element_name, class_data_map)
+                                                                inner_element_complex_node, inner_element_name,
+                                                                class_data_map)
                             else:
                                 inner_element_type = self._get_response_type_name(xs_prefix, inner_element_type)
-                                self._add_attribute_data(response_data, class_name, attribute_name, inner_element_type,
-                                                       'object_list')
+                                self._add_attribute_data(response_data, class_name, attribute_name,
+                                                         inner_element_type,
+                                                         'object_list')
 
                 else:
                     attribute_type = self._get_response_type_name(xs_prefix, attribute_type)
@@ -629,7 +666,7 @@ class CloudShellAPIGenerator:
                     max_occurs = XMLWrapper.get_node_attr(child_node, 'maxOccurs')
                     if max_occurs is not None and max_occurs == 'unbounded':
                         self._add_attribute_data(response_data, class_name, attribute_name, attribute_type,
-                                               'object_list')
+                                                 'object_list')
                     else:
                         self._add_attribute_data(response_data, class_name, attribute_name, attribute_type)
 
@@ -728,7 +765,7 @@ class CloudShellAPIGenerator:
             node_attr = self._parse_request_xml_attr(child_node, node_attr)
 
         if len(node_attr) != 0:
-                node_attr = node_attr[:-2]
+            node_attr = node_attr[:-2]
 
         return (node_attr)
 
