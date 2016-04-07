@@ -9,6 +9,8 @@ import os
 import re
 import codecs
 import sys
+import shutil
+import errno
 
 class XMLWrapper:
     @staticmethod
@@ -166,7 +168,8 @@ class CloudShellAPIGenerator:
         self._version = int(version_part[0])
 
         self._package_prefix = '/api/'
-        self._helpers_prefix = 'helpers/'
+        self._helpers_prefix = '/helpers/'
+        self._script_helpers_prefix = 'scripts/'
 
         self._package_name = package_name
 
@@ -285,6 +288,16 @@ class CloudShellAPIGenerator:
         for key, object in self.script_helper_resources.items():
             self._write_data(self.folder_prefix + object.name, object.data)
 
+
+    def _make_dir_from_path(self, path):
+        try:
+            os.makedirs(path)
+        except OSError as exc:  # Python >2.5
+            if exc.errno == errno.EEXIST and os.path.isdir(path):
+                pass
+            else:
+                raise
+
     def _pack_data(self):
         tar = tarfile.open(self.folder_prefix + self._package_filename + ".tar.gz", "w:gz")
         tarFolder = tarfile.TarInfo(self._package_root_folder + self._package_prefix)
@@ -294,12 +307,74 @@ class CloudShellAPIGenerator:
             tar.add(self.folder_prefix + key, arcname=self._package_root_folder + self._package_prefix + key)
         tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + '/__init__.py')
 
-        tarFolder = tarfile.TarInfo(self._package_root_folder + self._package_prefix + self._helpers_prefix)
+        tarFolder = tarfile.TarInfo(self._package_root_folder + self._helpers_prefix)
         tarFolder.type = tarfile.DIRTYPE
         tar.addfile(tarFolder)
-        tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + self._package_prefix + self._helpers_prefix + '__init__.py')
+        tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + self._helpers_prefix + '__init__.py')
+
+        tarFolder = tarfile.TarInfo(self._package_root_folder + self._helpers_prefix + self._script_helpers_prefix)
+        tarFolder.type = tarfile.DIRTYPE
+        tar.addfile(tarFolder)
+        tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + self._helpers_prefix + self._script_helpers_prefix + '__init__.py')
+
         for key in self.script_helper_resources:
-            tar.add(self.folder_prefix + key, arcname=self._package_root_folder + self._package_prefix + self._helpers_prefix + key)
+            tar.add(self.folder_prefix + key, arcname=self._package_root_folder + self._helpers_prefix + self._script_helpers_prefix + key)
+
+        for key in self.package_resources:
+            tar.add(self.folder_prefix + key, arcname=key)
+        tar.close()
+
+        self._make_dir_from_path(self.folder_prefix + '/source/' + self._package_root_folder + self._helpers_prefix +
+                     self._script_helpers_prefix)
+
+        shutil.copy(self.folder_prefix + '__init__.py', self.folder_prefix + '/source/' + self._package_root_folder)
+        shutil.copy(self.folder_prefix + '__init__.py', self.folder_prefix + '/source/' +
+                    self._package_root_folder + self._helpers_prefix)
+        shutil.copy(self.folder_prefix + '__init__.py', self.folder_prefix + '/source/' +
+                    self._package_root_folder + self._helpers_prefix + self._script_helpers_prefix)
+
+        for key in self.script_helper_resources:
+            file_path = self.folder_prefix + 'source/' + self._package_root_folder + self._helpers_prefix + \
+                        self._script_helpers_prefix + key
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+            os.rename(self.folder_prefix + key, file_path)
+
+        self._make_dir_from_path(self.folder_prefix + 'source/' + self._package_root_folder + self._package_prefix)
+
+        for key in self.resources:
+            file_path = self.folder_prefix + 'source/' + self._package_root_folder + self._package_prefix + key
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+            os.rename(self.folder_prefix + key, file_path)
+
+        for key in self.package_resources:
+            file_path = self.folder_prefix + 'source/' + key
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+            os.rename(self.folder_prefix + key, file_path)
+
+    def _pack_data_to_zip(self):
+        tar = tarfile.open(self.folder_prefix + self._package_filename + ".tar.gz", "w:gz")
+        tarFolder = tarfile.TarInfo(self._package_root_folder + self._package_prefix)
+        tarFolder.type = tarfile.DIRTYPE
+        tar.addfile(tarFolder)
+        for key in self.resources:
+            tar.add(self.folder_prefix + key, arcname=self._package_root_folder + self._package_prefix + key)
+        tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + '/__init__.py')
+
+        tarFolder = tarfile.TarInfo(self._package_root_folder + self._helpers_prefix)
+        tarFolder.type = tarfile.DIRTYPE
+        tar.addfile(tarFolder)
+        tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + self._helpers_prefix + '__init__.py')
+
+        tarFolder = tarfile.TarInfo(self._package_root_folder + self._helpers_prefix + self._script_helpers_prefix)
+        tarFolder.type = tarfile.DIRTYPE
+        tar.addfile(tarFolder)
+        tar.add(self.folder_prefix + '__init__.py', arcname=self._package_root_folder + self._helpers_prefix + self._script_helpers_prefix + '__init__.py')
+
+        for key in self.script_helper_resources:
+            tar.add(self.folder_prefix + key, arcname=self._package_root_folder + self._helpers_prefix + self._script_helpers_prefix + key)
 
         for key in self.package_resources:
             tar.add(self.folder_prefix + key, arcname=key)
