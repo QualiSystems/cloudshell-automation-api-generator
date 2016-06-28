@@ -1,0 +1,2041 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="ApiResponse"
+    targetNamespace="http://schemas.qualisystems.com/ResourceManagement/ApiCommandResult.xsd"
+    elementFormDefault="qualified"
+    xmlns="http://schemas.qualisystems.com/ResourceManagement/ApiCommandResult.xsd"
+    xmlns:mstns="http://schemas.qualisystems.com/ResourceManagement/ApiCommandResult.xsd"
+     xmlns:excns="http://schemas.qualisystems.com/ResourceManagement/ExportImportConfigurationSchema.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!-- run from 'Developer Command Prompt for VS2013' otherwise you will have so many changes so you may fall a victim of an 'IDIOT PART BELOW' -->
+
+  <!-- xsd.exe ApiCommandResult.xsd /classes /namespace:QualiSystems.ResourceManagement.Service.APIService 
+                                  DONT FORGET THE RESERVATION STATUS TAGS 
+                                  and ReservationProvisioningStatus, IDIOT!                           -->
+  
+  <!-- 
+  How to generate ApiCommandResult.cs file from ApiCommandResult.xsd
+  ___________________________________________________________________
+  1. Open console and navigate to the location where ApiCommandResult.xsd is located
+  
+  2. Run the following command:
+     "xsd ApiCommandResult.xsd /c /namespace:QualiSystems.ResourceManagement.Service.APIService" and if everything is ok ApiCommandResult.cs will be generated
+  * You can get error that  ApiCommandResult.cs is not available for writting even after closing it from VS.
+  In that case one of the solutions is to delete ApiCommandResult.cs and re-created it again.
+  
+  3. Before you check in the changes (ApiCommandResult.cs) compare the generated version with the version on the server. There will be important attributes missing that need 
+     to be added manually. 
+     EXAMPLE:
+     -> check enum ReservationStatus and ReservationProvisioningStatus
+     Attributes: [XmlEnumAttribute("Pending")], [XmlEnumAttribute("Started")], [XmlEnumAttribute("In Use")] will be missing. Add them to the correct place just
+     like it is on the server side.
+     
+  
+  4. IMPORTANT NOTE:
+  If you use "xsd ApiCommandResult.xsd /c" instead of "xsd ApiCommandResult.xsd /c /namespace:QualiSystems.ResourceManagement.Service.APIService" the .cs file
+  will be created but it will not be wrapped in the correct namespace and that will cause compile problems.
+  EXAMPLE COMPILE ERROR:
+    QS.TestShell.Server.csproj:
+    ResourceManagement\Plugins\Packaging\Importers\DataModelImporter.cs(368,24): err
+    or CS0576: Namespace '<global namespace>' contains a definition conflicting with
+    alias 'AttributeType'
+  -->
+
+  
+  <xs:complexType name="ResponseInfo">
+  </xs:complexType>
+
+  <xs:complexType name="ApiCommandResult">
+    <xs:sequence>
+      <xs:element name="Error" minOccurs="1" maxOccurs="1" type="xs:string" />
+      <xs:element name="ErrorCode" minOccurs="1" maxOccurs="1" type="xs:int" />
+      <xs:element name="ResponseInfo" minOccurs="0" maxOccurs="1" type="mstns:ResponseInfo" />
+    </xs:sequence>
+    <xs:attribute name="CommandName" type="xs:string" use="required" />
+    <xs:attribute name="Success" type="xs:boolean" use="required" />
+  </xs:complexType>
+
+  <xs:element name="Response" type="mstns:ApiCommandResult" />
+
+  <!-- Get Resource Description -->
+  <xs:simpleType name="AttributeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="DateTime"/>
+      <xs:enumeration value="Numeric"/>
+      <xs:enumeration value="String"/>
+      <xs:enumeration value="Boolean"/>
+      <xs:enumeration value="Lookup"/>
+      <xs:enumeration value="Password"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AttributeUsage">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Set"/>
+      <xs:enumeration value="Additional"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="ResourceLockInfo">
+    <xs:attribute name="ReservationName" type="xs:string"/>
+    <xs:attribute name="MachineName" type="xs:string"/>
+    <xs:attribute name="Username" type="xs:string"/>
+    <xs:attribute name="Created" type="xs:string"/>
+  </xs:complexType>
+  
+  <xs:complexType name="TopologyShortInfo">
+    <xs:sequence>
+      <xs:element name="Type" type="TopologysType"/>
+      <xs:element name="State" type="TopologysState"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string"/>
+    <xs:attribute name="Alias" type="xs:string"/>
+  </xs:complexType>
+  
+  <xs:complexType name="DomainInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Groups" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Group" minOccurs="1" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="Name" type="xs:string" use="required" />
+                    <xs:attribute name="Description" type="xs:string" use="optional"/>
+                    <xs:attribute name="Role" type="xs:string" use="required"/>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Topologies" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Topology" minOccurs="1" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="Name" type="xs:string" use="required" />
+                    <xs:attribute name="Description" type="xs:string" use="optional"/>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Resources" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Resource" minOccurs="1" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="Name" type="xs:string" use="required"/>
+                    <xs:attribute name="Path" type="xs:string" use="optional" />
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Description" type="xs:string" use="optional"/>
+        <xs:attribute name="TopologiesFolder" type="xs:string" use="optional"/>
+        <xs:attribute name="Archived " type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="ResourceInfoVmDetails">
+        <xs:sequence>
+                <xs:element name="VmCustomParams" minOccurs="0" maxOccurs="1">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="VmCustomParam" minOccurs="1" maxOccurs="unbounded">
+                        <xs:complexType>
+                          <xs:attribute name="Name" type="xs:string" use="required" />
+                          <xs:attribute name="Value" type="xs:string" use="required"/>
+                        </xs:complexType>
+                      </xs:element>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+              <xs:attribute name="UID" type="xs:string" use="required" />
+              <xs:attribute name="CloudProviderFullName" type="xs:string" use="required"/>
+            </xs:complexType>
+  
+  <xs:complexType name="ResourceInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="VmDetails" minOccurs="0" maxOccurs="1" type="ResourceInfoVmDetails"/>
+          <xs:element name="ResourceAttributes" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ResourceAttribute" minOccurs="1" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="Name" type="xs:string" use="required" />
+                    <xs:attribute name="Value" type="xs:string" use="required"/>
+                    <xs:attribute name="Type" type="AttributeType" use="required"/>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Domains" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Domain" minOccurs="1" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="Name" type="xs:string" use="required" />
+                    <xs:attribute name="Description" type="xs:string" use="optional"/>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="ChildResources" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ResourceInfo" minOccurs="1" maxOccurs="unbounded" type="ResourceInfo" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="LockInfo" minOccurs="0" maxOccurs="1" type="ResourceLockInfo"/>
+          <xs:element name="Connections" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:attribute name="FullPath" type="xs:string" use="required"/>
+              <xs:attribute name="Weight" type="xs:int" use="required"/>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="DriverName" type="xs:string" use="optional"/>
+        <xs:attribute name="FolderFullPath" type="xs:string" use="required"/>
+        <xs:attribute name="Address" type="xs:string" use="required"/>
+        <xs:attribute name="FullAddress" type="xs:string" use="required"/>
+        <xs:attribute name="RootAddress" type="xs:string" use="required"/>
+        <xs:attribute name="ResourceFamilyName" type="xs:string" use="required"/>
+        <xs:attribute name="ResourceModelName" type="xs:string" use="required"/>
+        <xs:attribute name="Locked" type="xs:boolean" use="required"/>
+        <xs:attribute name="Excluded" type="xs:boolean" use="required"/>
+        <xs:attribute name="Description" type="xs:string" use="required"/>
+        <xs:attribute name="Permission" type="xs:string" use="required"/>
+        <xs:attribute name="UniqeIdentifier" type="xs:string" use="required"/>
+        <xs:attribute name="ResourceLiveStatusName" type="xs:string" use="required"/>
+        <xs:attribute name="ResourceLiveStatusDescription" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- Get Resource Description -->
+
+
+  <xs:complexType name="ResourceLiveStatusInfo">
+    <xs:complexContent>
+        <xs:extension base="mstns:ResponseInfo">         
+        <xs:attribute name="liveStatusName" type="xs:string" use="required"/>      
+        <xs:attribute name="liveStatusDescription" type="xs:string" use="required"/>        
+       </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!--Reservation Live status-->
+  <xs:complexType name="ReservationLiveStatusInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="ReservationLiveStatuses" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ReservationLiveStatus" minOccurs="0" maxOccurs="unbounded" type="ReservationLiveStatus"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>      
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ReservationLiveStatus">    
+    <xs:attribute name="ReservationId" type="xs:string" use="required"/>
+    <xs:attribute name="ReservationLiveStatusName" type="xs:string" use="required"/>
+    <xs:attribute name="ReservationLiveStatusDescription" type="xs:string" use="required"/>
+  </xs:complexType>
+    
+  <!-- Get Topology Description -->  
+  <xs:complexType name="EndPointConnectionInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Routes" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Route" minOccurs="0" maxOccurs="unbounded" type="RouteInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>        
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="VisualConnectorsInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Connectors" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Connector" minOccurs="0" maxOccurs="unbounded" type="Connector"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="TopologyResourceInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="ResourceAttributes" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ResourceAttribute" minOccurs="1" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="Name" type="xs:string" use="required" />
+                    <xs:attribute name="Value" type="xs:string" use="required"/>
+                    <xs:attribute name="Type" type="AttributeType" use="required"/>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="LockInfo" minOccurs="0" maxOccurs="1" type="ResourceLockInfo"/>
+          <xs:element name="Connections" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:attribute name="FullPath" type="xs:string" use="required"/>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="FolderFullPath" type="xs:string" use="required"/>
+        <xs:attribute name="Address" type="xs:string" use="required"/>
+        <xs:attribute name="FullAddress" type="xs:string" use="required"/>
+        <xs:attribute name="RootAddress" type="xs:string" use="required"/>
+        <xs:attribute name="ResourceFamilyName" type="xs:string" use="required"/>
+        <xs:attribute name="ResourceModelName" type="xs:string" use="required"/>
+        <xs:attribute name="Alias" type="xs:string" use="required"/>
+        <xs:attribute name="Locked" type="xs:boolean" use="required"/>
+        <xs:attribute name="Excluded" type="xs:boolean" use="required"/>
+        <xs:attribute name="WillBeLocked" type="xs:boolean" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ActiveTopologyResourceInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="ResourceAttributes" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ResourceAttribute" minOccurs="1" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="Name" type="xs:string" use="required" />
+                    <xs:attribute name="Value" type="xs:string" use="required"/>
+                    <xs:attribute name="Type" type="AttributeType" use="required"/>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="LockInfo" minOccurs="0" maxOccurs="1" type="ResourceLockInfo"/>
+          <xs:element name="Connections" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:attribute name="FullPath" type="xs:string" use="required"/>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="FolderFullPath" type="xs:string" use="required"/>
+        <xs:attribute name="Address" type="xs:string" use="required"/>
+        <xs:attribute name="FullAddress" type="xs:string" use="required"/>
+        <xs:attribute name="RootAddress" type="xs:string" use="required"/>
+        <xs:attribute name="ResourceFamilyName" type="xs:string" use="required"/>
+        <xs:attribute name="ResourceModelName" type="xs:string" use="required"/>
+        <xs:attribute name="Alias" type="xs:string" use="required"/>
+        <xs:attribute name="Locked" type="xs:boolean" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TopologyAbstractResourceInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Attributes" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="AbstractResourceAttribute" minOccurs="1" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="Name" type="xs:string" use="required" />
+                    <xs:attribute name="Value" type="xs:string" use="required"/>
+                    <xs:attribute name="Type" type="AttributeType" use="required"/>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="RequiredAttributes" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="AbstractResourceRequiredAttribute" minOccurs="1" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="Name" type="xs:string" use="required" />
+                    <xs:attribute name="Value" type="xs:string" use="required"/>
+                    <xs:attribute name="Type" type="AttributeType" use="required"/>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="ResourceFamilyName" type="xs:string" use="required"/>
+        <xs:attribute name="ResourceModelName" type="xs:string" use="required"/>
+        <xs:attribute name="Alias" type="xs:string" use="required"/>
+        <xs:attribute name="WillBeLocked" type="xs:boolean" use="required"/>
+        <xs:attribute name="Valid" type="xs:boolean" use="required"/>
+        <xs:attribute name="Quantity" type="xs:int" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="RouteSegmentInfo">
+      <xs:attribute name="Source" type="xs:string" use="required" />
+      <xs:attribute name="Target" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="RouteInfo"> 
+    <xs:sequence>
+      <xs:element name="Segments" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Segment" minOccurs="0" maxOccurs="unbounded" type="RouteSegmentInfo"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Attributes" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Attributes" minOccurs="0" maxOccurs="unbounded" type="RouteAttributeInfo"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RouteConfiguration" minOccurs="0" maxOccurs="1" type="RouteConfigurationInfo"/>
+    </xs:sequence>
+    <xs:attribute name="IsTap" type="xs:boolean" use="optional"/>
+    <xs:attribute name="Source" type="xs:string" use="required"/>
+    <xs:attribute name="Target" type="xs:string" use="required"/>
+    <xs:attribute name="Alias" type="xs:string" use="required"/>
+    <xs:attribute name="RouteType" type="xs:string" use="required"/>
+    <xs:attribute name="Shared" type="xs:boolean" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="ReservationAppResource">
+    <xs:sequence>
+      <xs:element name="LogicalResource" minOccurs="0" maxOccurs="1" type="LogicalResourceInfo"/>
+      <xs:element name="DeploymentPaths" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="DeploymentPath" minOccurs="0" maxOccurs="unbounded" type="DeploymentPathInfo"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Description" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="TopologyAppResourceInfo">
+    <xs:sequence>
+      <xs:element name="LogicalResource" minOccurs="0" maxOccurs="1" type="LogicalResourceInfo"/>
+      <xs:element name="DeploymentPaths" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="DeploymentPath" minOccurs="0" maxOccurs="unbounded" type="DeploymentPathInfo"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Description" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="Connector">
+    <xs:sequence>
+      <xs:element name="Attributes" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Attribute" minOccurs="0" maxOccurs="unbounded" type="AttributeValueInfo"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="Alias" type="xs:string" use="required"/>
+    <xs:attribute name="Type" type="xs:string" use="required"/>
+    <xs:attribute name="Direction" type="xs:string" use="optional"/>
+    <xs:attribute name="Source" type="xs:string" use="required"/>
+    <xs:attribute name="Target" type="xs:string" use="required"/>
+    <xs:attribute name="State" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="LogicalResourceInfo">
+    <xs:sequence>
+      <xs:element name="Attributes" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Attribute" minOccurs="0" maxOccurs="unbounded" type="AttributeValueInfo"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+
+    <xs:attribute name="Family" type="xs:string" use="required"/>
+    <xs:attribute name="Model" type="xs:string" use="required"/>
+    <xs:attribute name="Driver" type="xs:string" use="optional"/>
+    <xs:attribute name="Description" type="xs:string" use="optional"/>
+
+  </xs:complexType>
+
+  <xs:complexType name="DeploymentServiceInfo">
+    <xs:sequence>
+      <xs:element name="Attributes" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Attribute" minOccurs="0" maxOccurs="unbounded" type="AttributeValueInfo"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Model" type="xs:string" use="required"/>
+    <xs:attribute name="Driver" type="xs:string" use="optional"/>
+
+  </xs:complexType>
+
+  <xs:complexType name="DeploymentPathInfo">
+    <xs:sequence>
+      <xs:element name="DeploymentService" minOccurs="0" maxOccurs="1" type="DeploymentServiceInfo"/>
+      <xs:element name="InstallationService" minOccurs="0" maxOccurs="1" type="AppInstallationInfo"/>
+    </xs:sequence>
+    <xs:attribute name="IsDefault" type="xs:boolean" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="InstallationService">
+    <xs:sequence>
+      <xs:element name="Attributes" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Attribute" minOccurs="0" maxOccurs="unbounded" type="AttributeValueInfo"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Model" type="xs:string" use="required"/>
+    <xs:attribute name="Driver" type="xs:string" use="optional"/>
+    <xs:attribute name="IsDefault" type="xs:boolean" use="required"/>
+
+  </xs:complexType>
+  
+  <xs:complexType name="RouteConfigurationInfo">
+    <xs:sequence>
+      <xs:element name="Speed" type="xs:long" nillable="true"/>
+      <xs:element name="Interface" type="xs:long" nillable="true"/>
+      <xs:element name="Duplex" type="xs:long" nillable="true"/>
+      <xs:element name="SpeedSetting" type="RouteSpeedSettings"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RouteAttributeInfo">
+    <xs:sequence>
+      <xs:element name="AttributeName" type="xs:string" />
+      <xs:element name="AttributeValue" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+
+  
+  <xs:complexType name="CategoryListInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Categories" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Name" minOccurs="0" maxOccurs="unbounded" type="xs:string" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TopologiesByCategoryInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Topologies" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="FullPath" minOccurs="0" maxOccurs="unbounded" type="xs:string" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="CategoriesOfTopologyInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Categories" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Category" minOccurs="0" maxOccurs="unbounded" type="TopologyCategoryInfo" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="TopologyCategoryInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:attribute name="Name" type="xs:string" use ="required"/>
+        <xs:attribute name="Value" type="xs:string" use ="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TopologyInputsInfo">
+    <xs:sequence>
+      <xs:element name="PossibleValues" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="ParamName" type="xs:string" use="required"/>
+    <xs:attribute name="DefaultValue" type="xs:string" use="required"/>
+    <xs:attribute name="Description" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="TopologyGlobalInputsInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:TopologyInputsInfo"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TopologyAdditionalInfoInputsInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:TopologyInputsInfo">
+        <xs:attribute name="ResourceName" type="xs:string" use="required"/>
+        <xs:attribute name="LinkedToGlobal" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TopologyRequirementsInputsInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:TopologyInputsInfo">
+        <xs:attribute name="ResourceName" type="xs:string" use="required"/>
+        <xs:attribute name="InputType" type="InputType" use="required"/>
+        <xs:attribute name="LinkedToGlobal" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="InputType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Quantity"/>
+      <xs:enumeration value="Models"/>
+      <xs:enumeration value="Attributes"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="TopologyInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Resources" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ResourceInfo" minOccurs="0" maxOccurs="unbounded" type="TopologyResourceInfo" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="AbstractResources" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="AbstractResourceInfo" minOccurs="0" maxOccurs="unbounded" type="TopologyAbstractResourceInfo" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Routes" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Route" minOccurs="0" maxOccurs="unbounded" type="RouteInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Connectors" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Connector" minOccurs="0" maxOccurs="unbounded" type="Connector"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Services" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Service" minOccurs="0" maxOccurs="unbounded" type="ServiceInstance"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Apps" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="App" minOccurs="0" maxOccurs="unbounded" type="TopologyAppResourceInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Instructions" type="xs:string"/>
+          <xs:element name="GlobalInputs" minOccurs="0" maxOccurs="unbounded" type="TopologyGlobalInputsInfo"/>
+          <xs:element name="RequirementsInputs" minOccurs="0" maxOccurs="unbounded" type="TopologyRequirementsInputsInfo"/>
+          <xs:element name="AdditionalInfoInputs" minOccurs="0" maxOccurs="unbounded" type="TopologyAdditionalInfoInputsInfo"/>
+          <xs:element name="ParentTopology" type="TopologyShortInfo" nillable="true"/>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Owner" type="xs:string" use="required"/>
+        <xs:attribute name="Driver" type="xs:string" use="required"/>
+        <xs:attribute name="Type" type="xs:string" use="required"/>
+        <xs:attribute name="State" type="xs:string" use="required"/>
+        <xs:attribute name="Alias" type="xs:string" use="required"/>
+        
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- Get Topology Description -->
+
+  <!-- Get Active Topology List -->
+  <xs:complexType name="ActiveTopologyInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Resources" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ResourceInfo" minOccurs="0" maxOccurs="unbounded" type="ActiveTopologyResourceInfo" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Routes" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Route" minOccurs="0" maxOccurs="unbounded" type="RouteInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Connectors" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Connector" minOccurs="0" maxOccurs="unbounded" type="Connector"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string" use="required" />
+        <xs:attribute name="MachineName" type="xs:string" use="required"/>
+        <xs:attribute name="Username" type="xs:string" use="required"/>
+        <xs:attribute name="Topology" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+   
+  <xs:complexType name="TopologyListInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Topologies" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="TopologyName" minOccurs="0" maxOccurs="unbounded" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- Get Active Topology List -->
+
+  <xs:complexType name="AttributeValueInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:attribute name="Name" type="xs:string" use="required" />
+        <xs:attribute name="Value" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Get Resource List -->
+  <xs:complexType name="ResourceShortInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="LockInfo" minOccurs="0" maxOccurs="1" type="ResourceLockInfo"/>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="FolderFullPath" type="xs:string" use="required"/>
+        <xs:attribute name="Address" type="xs:string" use="required"/>
+        <xs:attribute name="FullAddress" type="xs:string" use="required"/>
+        <xs:attribute name="RootAddress" type="xs:string" use="required"/>
+        <xs:attribute name="ResourceFamilyName" type="xs:string" use="required"/>
+        <xs:attribute name="ResourceModelName" type="xs:string" use="required"/>
+        <xs:attribute name="Locked" type="xs:boolean" use="required"/>
+        <xs:attribute name="Excluded" type="xs:boolean" use="required"/>
+        <xs:attribute name="Permission" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ResourceListInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Resources" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Resource" minOccurs="0" maxOccurs="unbounded" type="ResourceShortInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- Get Resource List -->
+
+  
+  <xs:complexType name="ServiceInstance">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Attributes" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Attribute" minOccurs="0" maxOccurs="unbounded" type="AttributeValueInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="ServiceName" type="xs:string" use="required"/>
+        <xs:attribute name="Alias" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- Get Services -->
+
+  <xs:complexType name="ServiceAttribute">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Type" type="xs:string" use="required"/>
+        <xs:attribute name="IsRequired" type="xs:boolean" use="required"/>
+        <xs:attribute name="DefaultValue" type="xs:string" use="required"/>
+        <xs:attribute name="PossibleValues" type="xs:string" use="required"/>
+        <xs:attribute name="RestrictedValues" type="xs:string" use="optional"/>
+
+
+  </xs:complexType>
+
+  <xs:complexType name="ServiceInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Attributes" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Attribute" minOccurs="0" maxOccurs="unbounded" type="ServiceAttribute"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="CategoryFullPath" type="xs:string" use="required"/>
+        <xs:attribute name="Description" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ServicesListInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Services" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Service" minOccurs="0" maxOccurs="unbounded" type="ServiceInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Get Services -->
+
+  <!-- Get Content List -->
+  <xs:complexType name="ContentShortInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Type" type="xs:string" use="required" />
+        <xs:attribute name="Permission" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ContentListInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="ContentArray" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Content" minOccurs="0" maxOccurs="unbounded" type="ContentShortInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- Get Content List -->
+
+  <xs:complexType name="ReservationListInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Reservations" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Reservation" minOccurs="0" maxOccurs="unbounded" type="ReservationInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="ReservationInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="LockedResources" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Resource" minOccurs="0" maxOccurs="unbounded" type="ResourceShortInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Id" type="xs:string" use="required"/>
+        <xs:attribute name="Name" type="xs:string" use="required"/>        
+        <xs:attribute name="Owner" type="xs:string" use="required"/>
+        <xs:attribute name="Created" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Mappings list -->
+  <xs:complexType name="ResourceMappingsInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Mapping" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:attribute name="Source" type="xs:string" use="required"/>
+              <xs:attribute name="Target" type="xs:string" use="required"/>
+              <xs:attribute name="RouteType" type="xs:string" use="required"/>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!-- Mappings list --> 
+
+  <xs:complexType name="CreateReservationResponseInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Reservation" minOccurs="0" maxOccurs="1" type="ReservationShortInfo"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ReplaceWithResourceResponseInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="RootResources" minOccurs="0" maxOccurs="unbounded" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="GetReservationsInRangeResponseInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Reservations" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Reservation" minOccurs="0" maxOccurs="unbounded" type="ReservationShortInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ReservationShortInfo">
+    <xs:sequence>
+      
+      <xs:element name="Topologies" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="TopologyName" minOccurs="0" maxOccurs="unbounded" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      
+      <xs:element name="TopologiesInfo" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Topology" minOccurs="0" maxOccurs="unbounded" type="TopologyShortInfo"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      
+      
+      <xs:element name="PermittedUsers" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="PermittedUser" minOccurs="0" maxOccurs="unbounded" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      
+    </xs:sequence>
+    <xs:attribute name="Id" type="xs:string" use="required" />
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="Description" type="xs:string" use="required" />
+    <xs:attribute name="StartTime" type="xs:string" use="required" />
+    <xs:attribute name="EndTime" type="xs:string" use="required" />
+    <xs:attribute name="RecurrenceType" type="RecurrenceType" use="required"/>
+    <xs:attribute name="Owner" type="xs:string" use="required" />
+    <xs:attribute name="Booked" type="xs:boolean" use="required"/>
+    <xs:attribute name="Status" type="ReservationStatus" use="required"/>
+    <xs:attribute name="ProvisioningStatus" type="ReservationProvisioningStatus" use="required"/>        
+    <xs:attribute name="ActualEndTime" type="xs:string"  use="optional" />
+    <xs:attribute name="CreateDate" type="xs:string" use="required" />
+    <xs:attribute name="ModificationDate" type="xs:string" use="required" />
+    <xs:attribute name="DomainName" type="xs:string" use="required" />
+    <xs:attribute name="ReservationLiveStatusName" type="xs:string" use="required"/>
+    <xs:attribute name="ReservationLiveStatusDescription" type="xs:string" use="required"/>
+  </xs:complexType>
+  
+  <xs:simpleType name="RecurrenceType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None"/>
+      <xs:enumeration value="Occurrence"/>
+      <xs:enumeration value="ChangedOccurrence"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ReservationStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="Active"/>
+      <xs:enumeration value="InUse"/>
+      <xs:enumeration value="Complete"/>
+      <xs:enumeration value="Overtime"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="ReservationDiagramLayoutResponseInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="ResourceDiagramLayouts" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ResourceDiagramLayout" minOccurs="0" maxOccurs="unbounded" type="ResourceDiagramLayoutInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ResourceDiagramLayoutInfo">
+    <xs:attribute name="ResourceName" type="xs:string" use="required"/>
+    <xs:attribute name="X" type="xs:double" use="required"/>
+    <xs:attribute name="Y" type="xs:double" use="required"/>
+  </xs:complexType>
+
+  <xs:simpleType name="ReservationProvisioningStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NotRun"/>
+      <xs:enumeration value="Setup"/>
+      <xs:enumeration value="Ready"/>
+      <xs:enumeration value="Teardown"/>
+      <xs:enumeration value="Error"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="RouteSpeedSettings">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Any"/>
+      <xs:enumeration value="HardSet"/>
+      <xs:enumeration value="AutoNegotiation"/>
+      <xs:enumeration value="Default"/>
+      <xs:enumeration value="None"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="TopologysType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Regular"/>
+      <xs:enumeration value="Build"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TopologysState">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="PendingWithoutApproval"/>
+      <xs:enumeration value="Ready"/>
+      <xs:enumeration value="Archived"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="GetReservationDescriptionResponseInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="ReservationDescription" minOccurs="0" maxOccurs="1" type="ReservationDescriptionInfo"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ReservationAppsResponseInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Apps" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ReservedApp" minOccurs="0" maxOccurs="unbounded" type="ReservationAppResource"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ReservationDescriptionInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ReservationShortInfo">
+        <xs:sequence>
+          <xs:element name="Resources" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ReservedResource" minOccurs="0" maxOccurs="unbounded" type="ReservedResourceInfo" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="TopologiesReservedResources" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="TopologyReservedResource" minOccurs="0" maxOccurs="unbounded" type="TopologyReservedResourceInfo" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Conflicts" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Conflict" minOccurs="0" maxOccurs="unbounded" type="ResourceConflictInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="TopologiesRouteInfo" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="TopologyRoutes" minOccurs="0" maxOccurs="unbounded" type="TopologyRoutesInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="TopologiesResourcesAttributeInfo" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="TopologiesResourcesAttributes" minOccurs="0" maxOccurs="unbounded" type="TopologiesResourcesAttributesInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="TopologiesInstructionsInfo" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="TopologyInstructions" minOccurs="0" maxOccurs="unbounded" type="TopologyInstructionsInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          
+          <xs:element name="ActiveRoutesInfo" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ActiveRoute" minOccurs="0" maxOccurs="unbounded" type="RouteInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="RequestedRoutesInfo" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="RequestedRoute" minOccurs="0" maxOccurs="unbounded" type="RouteInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+
+          <xs:element name="Connectors" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Connector" minOccurs="0" maxOccurs="unbounded" type="Connector"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+
+          <xs:element name="Apps" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ReservedApp" minOccurs="0" maxOccurs="unbounded" type="ReservationAppResource"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+
+          <xs:element name="ReservationLiveStatus" minOccurs="0" maxOccurs="1" type="ReservationLiveStatus"/>
+
+          <xs:element name="Services" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Service" minOccurs="0" maxOccurs="unbounded" type="ServiceInstance"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  
+    
+
+  <xs:complexType name="GetReservationInputsResponseInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="GlobalInputs" minOccurs="0" maxOccurs="unbounded" type="ReservedTopologyGlobalInputsInfo"/>
+          <xs:element name="RequiredInputs" minOccurs="0" maxOccurs="unbounded" type="ReservedTopologyRequiredInputsInfo"/>
+          <xs:element name="AdditionalInfoInputs" minOccurs="0" maxOccurs="unbounded" type="ReservedTopologyAdditionalInfoInputsInfo"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+    
+  <xs:complexType name="ReservedTopologyInputsInfo">
+    <xs:attribute name="ParamName" type="xs:string" use="required"/>
+    <xs:attribute name="Value" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="ReservedTopologyGlobalInputsInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ReservedTopologyInputsInfo">
+        <xs:sequence>
+          <xs:element name="PossibleValues" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ReservedTopologyRequiredInputsInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ReservedTopologyInputsInfo">
+        <xs:attribute name="ResourceName" type="xs:string" use="required"/>
+        <xs:attribute name="Type" type="InputType" use="required"/>
+        <xs:attribute name="LinkedToGlobal" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="ReservedTopologyAdditionalInfoInputsInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ReservedTopologyInputsInfo">
+        <xs:sequence>
+          <xs:element name="PossibleValues" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="ResourceName" type="xs:string" use="required"/>
+        <xs:attribute name="LinkedToGlobal" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TopologiesResourcesAttributesInfo">
+    <xs:sequence>
+      <xs:element name="AttributeValue" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="TopologyName" type="xs:string" use="required"/>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Alias" type="xs:string" use="required"/>
+    <xs:attribute name="AttributeName" type="xs:string" use="required"/>
+    <xs:attribute name="Usage" type="AttributeUsage" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="ReservedResourceInfo">
+    <xs:sequence>
+      <xs:element name="VmDetails" type="ResourceInfoVmDetails" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="FolderFullPath" type="xs:string" use="required"/>
+    <xs:attribute name="FullAddress" type="xs:string" use="required"/>
+    <xs:attribute name="Shared" type="xs:boolean" use="required"/>
+    <xs:attribute name="Availability" type="xs:string" use="required"/>
+    <xs:attribute name="Locked" type="xs:boolean" use="required"/>
+    <xs:attribute name="Released" type="xs:boolean" use="required"/>
+    <xs:attribute name="ResourceFamilyName" type="xs:string" use="required"/>
+    <xs:attribute name="ResourceModelName" type="xs:string" use="required"/>
+    <xs:attribute name="CreatedByUser" type="xs:string" use="optional"/>
+    <xs:attribute name="CreatedInDomain" type="xs:string" use="optional"/>
+    <xs:attribute name="CreatedInReservation" type="xs:string" use="optional"/>
+  </xs:complexType>
+  
+  <xs:complexType name="TopologyRoutesInfo">
+    <xs:sequence>
+      <xs:element name="Routes" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Route" minOccurs="0" maxOccurs="unbounded" type="RouteInfo"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="TopologyName" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="TopologyInstructionsInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Instructions" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="TopologyName" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TopologyReservedResourceInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ReservedResourceInfo">
+        <xs:attribute name="TopologyName" type="xs:string" use="required"/>
+        <xs:attribute name="Alias" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  
+  <xs:complexType name="GetActiveReservationsResponseInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Reservations" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Reservation" minOccurs="0" maxOccurs="unbounded" type="ReservationShortInfo"/>
+              </xs:sequence>  
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ResourceConflictInfo">
+    <xs:attribute name="ResourceName" type="xs:string" use="required" />
+    <xs:attribute name="ConflictType" type="xs:string" use="required" />
+    <xs:attribute name="Topology" type="xs:string" use="required" />
+    <xs:attribute name="ConflictWith" type="xs:string" use="required" />
+    <xs:attribute name="ConflictWithUser" type="xs:string" use="required" />
+    <xs:attribute name="ConflictStarted" type="xs:string"  use="optional" />
+    <xs:attribute name="ConflictPlannedEndTime" type="xs:string"  use="optional" />
+  </xs:complexType>
+  
+  <xs:complexType name="ReserveResourcesResponseInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Conflicts" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Conflict" minOccurs="0" maxOccurs="unbounded" type="ResourceConflictInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="AddAppToReservationResponseInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:attribute name="ReservedAppName" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="ReserveTopologyResponseInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Conflicts" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Conflict" minOccurs="0" maxOccurs="unbounded" type="ResourceConflictInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="CommandExecutionIdResponseInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:attribute name="Id" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="CommandExecutionResultInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">        
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="CommandExecutionResultListInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Results" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Result" minOccurs="0" maxOccurs="unbounded" type="CommandExecutionResultInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="CommandExecutionCompletedResultInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:CommandExecutionResultInfo">
+        <xs:attribute name="Output" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="CommandExecutionCancelledResultInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:CommandExecutionResultInfo">
+        <xs:attribute name="Message" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="CommandExecutionFailedResultInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:CommandExecutionResultInfo">
+        <xs:sequence>
+          <xs:element name="ErrorParameters" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Parameter" minOccurs="0" maxOccurs="unbounded" type="ErrorParameter"/>
+              </xs:sequence>
+            </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="ErrorName" type="xs:string" use="required"/>
+        <xs:attribute name="ErrorDescription" type="xs:string" use="required"/>        
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ErrorParameter">
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Value" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="LogonDomainInfo">
+    <xs:attribute name="Name" type="xs:string"/>
+    <xs:attribute name="Description" type="xs:string"/>
+    <xs:attribute name="DomainId" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="LogonTokenInfo">
+    <xs:attribute name="Token" type="xs:string"/>
+  </xs:complexType>
+  
+  <xs:complexType name="LogonResponseInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Domain" minOccurs="1" maxOccurs="1" type="LogonDomainInfo"/>
+          <xs:element name="User" minOccurs="1" maxOccurs="1" type="UserInfo"/>
+          <xs:element name="Token" minOccurs="1" maxOccurs="1" type="LogonTokenInfo"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="CommandParameter">
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Description" type="xs:string" use="required"/>
+    <xs:attribute name="Type" type="xs:string" use="required"/>
+    <xs:attribute name="Mandatory" type="xs:boolean" use="required"/>
+    <xs:attribute name="DefaultValue" type="xs:string" use="required"/>
+    <xs:attribute name="EnumValues" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+ 
+
+  <xs:complexType name="ResourceCommandInfo">
+    <xs:sequence>
+      <xs:element name="Parameters" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Parameter" minOccurs="0" maxOccurs="unbounded" type="CommandParameter"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Tag" type="xs:string" use="optional"/>
+    <xs:attribute name="Description" type="xs:string" use="required"/>
+    <xs:attribute name="DisplayName" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="ResourceCommandListInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Commands" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Command" minOccurs="0" maxOccurs="unbounded" type="ResourceCommandInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TopologyCommandInfo">
+    <xs:sequence>
+      <xs:element name="Parameters" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Parameter" minOccurs="0" maxOccurs="unbounded" type="CommandParameter"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Description" type="xs:string" use="required"/>
+  </xs:complexType>
+  
+  <xs:complexType name="TopologyCommandListInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Commands" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Command" minOccurs="0" maxOccurs="unbounded" type="TopologyCommandInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="EnvironmentCommandListInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Commands" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Command" minOccurs="0" maxOccurs="unbounded" type="EnvironmentCommandInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="EnvironmentCommandParameter">
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="DisplayName" type="xs:string" use="required"/>
+    <xs:attribute name="Description" type="xs:string" use="required"/>
+    <xs:attribute name="Type" type="xs:string" use="required"/>
+    <xs:attribute name="Mandatory" type="xs:boolean" use="required"/>
+    <xs:attribute name="DefaultValue" type="xs:string" use="required"/>
+    <xs:attribute name="EnumValues" type="xs:string" use="optional"/>
+  </xs:complexType>
+  
+  <xs:complexType name="EnvironmentCommandInfo">
+    <xs:sequence>
+      <xs:element name="Parameters" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Parameter" minOccurs="0" maxOccurs="unbounded" type="EnvironmentCommandParameter"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="DisplayName" type="xs:string" use="optional"/>
+    <xs:attribute name="Description" type="xs:string" use="required"/>
+  </xs:complexType>
+  
+  <!-- FindResourceByAttribute start -->
+
+  <xs:complexType name="FindResourceReservationInfo">
+    <xs:attribute name="ReservationId" type="xs:string" use="required"/>
+    <xs:attribute name="ResourceFullName" type="xs:string" use="required"/>
+    <xs:attribute name="ReservationName" type="xs:string" use="required"/>
+    <xs:attribute name="Owner" type="xs:string" use="required"/>
+    <xs:attribute name="StartTime" type="xs:string" use="required"/>
+    <xs:attribute name="EndTime" type="xs:string" use="required"/>
+    <xs:attribute name="Shared" type="xs:boolean" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="ResourcesUsageSummaryInfo">
+    <xs:attribute name="ResourceFullName" type="xs:string" use="required"/>
+    <xs:attribute name="NumOfNotInReservation" type="xs:int" use="required"/>
+    <xs:attribute name="NumOfReserved" type="xs:int" use="required"/>
+    <xs:attribute name="NumOfShared" type="xs:int" use="required"/>
+  </xs:complexType>
+  
+  
+  <xs:complexType name="FindResourceInfo">
+    <xs:sequence>
+      <xs:element name="Reservations" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Reservation" minOccurs="0" maxOccurs="unbounded" type="FindResourceReservationInfo"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="UsageSummary" minOccurs="0" maxOccurs="1" type="ResourcesUsageSummaryInfo"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Description" type="xs:string" use="required"/>
+    <xs:attribute name="Address" type="xs:string" use="required"/>
+    <xs:attribute name="FullName" type="xs:string" use="required"/>
+    <xs:attribute name="FullPath" type="xs:string" use="required"/>
+    <xs:attribute name="FullAddress" type="xs:string" use="required"/>
+    <xs:attribute name="ResourceFamilyName" type="xs:string" use="required"/>
+    <xs:attribute name="ResourceModelName" type="xs:string" use="required"/>
+    <xs:attribute name="ReservedStatus" type="xs:string" use="required"/>
+    <xs:attribute name="Excluded" type="xs:boolean" use="required"/>
+    <xs:attribute name="Permission" type="xs:string" use="required"/>
+    <xs:attribute name="ConnectedTo" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="FindResourceListInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Resources" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Resource" minOccurs="0" maxOccurs="unbounded" type="FindResourceInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- FindResourceByAttribute end -->
+  
+  <!-- GetReservationRemainingTime start -->
+
+  <xs:complexType name="GetReservationRemainingTimeInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:attribute name="RemainingTimeInMinutes" type="xs:double" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>  
+
+  <!-- GetReservationRemainingTime end -->
+  
+  <!-- User start-->
+  <xs:complexType name="UsersInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Users" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="User" minOccurs="0" maxOccurs="unbounded" type="UserInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UserInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Groups" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Group" minOccurs="0" maxOccurs="unbounded" type="GroupInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="IsAdmin" type="xs:boolean" use="required"/>
+        <xs:attribute name="IsActive" type="xs:boolean" use="required"/>
+        <xs:attribute name="DomainName" type="xs:string" use="required"/>
+        <xs:attribute name="IsDomainAdmin" type="xs:boolean" use="required"/>
+        <xs:attribute name="Email" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- User end-->
+
+  <!-- Group start-->
+  <xs:complexType name="GroupsInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Groups" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Group" minOccurs="0" maxOccurs="unbounded" type="GroupInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TestShellDomainInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Description" type="xs:string" use="optional"/>
+        <xs:attribute name="Id" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="GroupInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="TestShellDomains" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="TestShellDomain" minOccurs="0" maxOccurs="unbounded" type="TestShellDomainInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:sequence>
+            <xs:element name="Users" minOccurs="0" maxOccurs="1">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="User" minOccurs="0" maxOccurs="unbounded" type="UserInfo"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Description" type="xs:string" use="optional"/>
+        <xs:attribute name="GroupRole" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Group end-->
+
+  <!-- UtilizationReportContract start-->
+
+  <xs:complexType name="UtilizationReport">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="UtilizationReportRows" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="UtilizationReportRow" minOccurs="0" maxOccurs="unbounded" type="UtilizationReportRow"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="UtilizationReportRow">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Children" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Child" minOccurs="0" maxOccurs="unbounded" type="UtilizationReportRow"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Family" type="xs:string" use="required"/>
+        <xs:attribute name="Model" type="xs:string" use="required"/>
+        <xs:attribute name="Utilization" type="xs:double" use="required"/>        
+        <xs:attribute name="ParentId" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- UtilizationReportContract end-->
+
+  <!-- GetServerTime start-->
+
+  <xs:complexType name="ServerTimeInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:attribute name="ServerDateTime" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- GetServerTime end-->
+
+  <xs:complexType name="ExportConfigurationInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Configuration" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="GetServerTimeZonesResponse">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="TimeZones" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="TimeZone" minOccurs="0" maxOccurs="unbounded" type="TimeZoneDefinition"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TimeZoneDefinition">
+    <xs:attribute name="Id" type="xs:string" use="required"/>
+    <xs:attribute name="DisplayName" type="xs:string" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="AbstractTemplateShortInfoList">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="AbstractTemplates" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="AbstractTemplate" minOccurs="0" maxOccurs="unbounded" type="AbstractTemplateShortInfo"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="AbstractTemplateShortInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:attribute name="ResourceFamilyName" type="xs:string" use="required"/>
+        <xs:attribute name="ResourceModelName" type="xs:string" use="required"/>
+        <xs:attribute name="Name" type="xs:string" use="required"/>
+        <xs:attribute name="Description" type="xs:string" use="required"/>
+        <xs:attribute name="Owner" type="xs:string" use="required"/>
+        <xs:attribute name="DomainName" type="xs:string" use="required" />
+        <xs:attribute name="CreateDate" type="xs:string" use="required" />
+        <xs:attribute name="Valid" type="xs:boolean" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- app deployment-->
+
+  <xs:complexType name="BulkAppDeploymentyResultItem">
+    <xs:sequence>
+      <xs:element name="AppDeploymentyInfo" minOccurs="0" maxOccurs="1" type="AppDeploymentyInfo"/>
+      <xs:element name="AppInstallationInfo" minOccurs="0" maxOccurs="1" type="AppInstallationInfo"/>
+    </xs:sequence>
+    <xs:attribute name="Success" type="xs:boolean" use="required" />
+    <xs:attribute name="Error" type="xs:string" use="optional" />
+    <xs:attribute name="ErrorCode" type="xs:int" use="required" />
+    <xs:attribute name="AppName" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="BulkAppDeploymentyInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="ResultItems" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ResultItem" minOccurs="0" maxOccurs="unbounded" type="BulkAppDeploymentyResultItem"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="AppDeploymentyInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="VisualConnectors" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="VisualConnector" minOccurs="0" maxOccurs="unbounded" type="AppVisualConnector"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="LogicalResourceName" type="xs:string" use="required"/>
+        <xs:attribute name="VmUuid" type="xs:string" use="required"/>
+        <xs:attribute name="CloudProviderResourceName" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="AppInstallationInfo">
+    <xs:sequence>
+      <xs:element name="Attributes" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Attribute" minOccurs="0" maxOccurs="unbounded" type="AttributeValueInfo"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ScriptInputs" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Input" minOccurs="0" maxOccurs="unbounded" type="ScriptInputValue"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Model" type="xs:string" use="required"/>
+    <xs:attribute name="Driver" type="xs:string" use="optional"/>
+    <xs:attribute name="ScriptCommandName" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="ScriptInputValue">
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="Value" type="xs:string" use="optional"/>
+  </xs:complexType>
+  
+  <xs:complexType name="AppVisualConnector">
+    <xs:sequence>
+      <xs:element name="Attributes" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Attribute" minOccurs="0" maxOccurs="unbounded" type="AttributeValueInfo"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="Alias" type="xs:string" use="required"/>
+    <xs:attribute name="Source" type="xs:string" use="required"/>
+    <xs:attribute name="Target" type="xs:string" use="required"/>
+  </xs:complexType>
+  
+  <xs:complexType name="NumericRange">
+    <xs:attribute name="Start" type="xs:int" use="required"/>
+    <xs:attribute name="End" type="xs:int" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="CheckoutFromPoolInfo">
+    <xs:complexContent>
+      <xs:extension base="mstns:ResponseInfo">
+        <xs:sequence>
+          <xs:element name="Items" minOccurs="0" maxOccurs="unbounded" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+</xs:schema>

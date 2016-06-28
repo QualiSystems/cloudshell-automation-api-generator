@@ -1,16 +1,17 @@
-__author__ = 'g8y3e'
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
-import tarfile
-import StringIO
-import xml.etree.ElementTree as etree
-from collections import OrderedDict
-
+import codecs
+import errno
 import os
 import re
-import codecs
-import sys
 import shutil
-import errno
+import tarfile
+import xml.etree.ElementTree as etree
+
+from argparse import ArgumentParser
+from collections import OrderedDict
+
 
 class XMLWrapper:
     @staticmethod
@@ -87,10 +88,12 @@ class XMLWrapper:
 
         return count
 
+
 class GeneratorResource:
     def __init__(self, name, data):
         self.name = name
         self.data = data
+
 
 class CommandParameterInfo:
     def __init__(self, name, type, default_value, description):
@@ -99,6 +102,7 @@ class CommandParameterInfo:
         self.default_value = default_value
 
         self.description = description
+
 
 class ResponseClassData:
     def __init__(self):
@@ -127,9 +131,6 @@ class ResponseClassData:
             atrributes_data += prefix + "self." + key + " = " + value_prefix + value + value_postfix + \
                                comment_type + comment_postfix + "\n"
 
-        #if len(atrributes_data) != 0:
-        #    atrributes_data = atrributes_data[:-1]
-
         return atrributes_data
 
     def to_string(self):
@@ -141,6 +142,7 @@ class ResponseClassData:
                                            '""":type : list[', ']"""', self.object_comment_attributes)
 
         return attributes
+
 
 class CloudShellAPIGenerator:
     def __init__(self, api_documentation_path, api_response_path, version, api_methods_result,
@@ -185,29 +187,6 @@ class CloudShellAPIGenerator:
 
     def isSevenVersion(self):
         return (self._version >= 7)
-
-        # def _read_resources(self):
-        #     if not os.path.exists(self.folder_prefix):
-        #         os.makedirs(self.folder_prefix)
-    #
-    #     self.api_method_template = StringIO(LoadResource(0, u'API_METHOD_TMP', 1)).read()
-    #     self.api_response_class_template = StringIO(LoadResource(0, u'API_RESPONSE_TMP', 1)).read()
-    #     self.test_api_method_template = StringIO(LoadResource(0, u'TEST_API_METHOD_TMP', 1)).read()
-    #
-    #     name = 'common_cloudshell_api.py'
-    #     data = StringIO(LoadResource(0, u'COMMON_API', 1)).read()
-    #     self.resources[name] = GeneratorResource(name, data)
-    #
-    #     name = 'cloudshell_api.py'
-    #     if self.isSevenVersion():
-    #         data = StringIO(LoadResource(0, u'API_V7', 1)).read()
-    #     else:
-    #         data = StringIO(LoadResource(0, u'API_V6', 1)).read()
-    #     self.resources[name] = GeneratorResource(name, data)
-    #
-    #     name = 'test_cloudshell_api.py'
-    #     data = StringIO(LoadResource(0, u'API_TEST', 1)).read()
-    #     self.resources[name] = GeneratorResource(name, data)
 
     def _read_resources_not_exe(self):
         if not os.path.exists(self.folder_prefix):
@@ -287,7 +266,6 @@ class CloudShellAPIGenerator:
 
         for key, object in self.script_helper_resources.items():
             self._write_data(self.folder_prefix + object.name, object.data)
-
 
     def _make_dir_from_path(self, path):
         try:
@@ -992,58 +970,32 @@ class CloudShellAPIGenerator:
 
 if __name__ == '__main__':
     print 'Run generating...'
-    # read args from command line
-    key = ''
-    arg_data = OrderedDict()
-    path_to_exe = ''
-    for arg in sys.argv:
-        if len(path_to_exe) == 0:
-            path_to_exe = arg
-        elif len(key) == 0:
-            key = arg
-        else:
-            arg_data[key] = arg
-            key = ''
 
-    api_documentation_path = 'APIDocumentation_v6.xml'
-    api_response_path = 'ApiCommandResult_v6.xsd'
-    if '--input_xml' in arg_data:
-        api_documentation_path = arg_data['--input_xml']
+    parser = ArgumentParser()
 
-    if '--input_xsd' in arg_data:
-        api_response_path = arg_data['--input_xsd']
+    parser.add_argument("--input_xml", action="store", dest="api_documentation_path",
+                        default="APIDocumentation_v6.xml", help="API requests file specification")
+    parser.add_argument("--input_xsd", action="store", dest="api_response_path",
+                        default="ApiCommandResult_v6.xsd", help="API response file specification")
+    parser.add_argument("--method_result", action="store", dest="api_methods_result",
+                        default="ApiMethodResults.xml", help="API requests file specification")
+    parser.add_argument("--version", action="store", dest="version",
+                        default="6.4.0", help="API requests file specification")
+    parser.add_argument("--output_dir", action="store", dest="output_dir",
+                        help="API requests file specification")
+    parser.add_argument("--package_name", action="store", dest="package_name",
+                        default="", help="API requests file specification")
+    parser.add_argument("--package_filename", action="store", dest="package_filename",
+                        default="cloudshell-automation-api", help="API requests file specification")
+    parser.add_argument("--package_root_dir", action="store", dest="package_root_dir",
+                        default="cloudshell", help="API requests file specification")
+    parser.add_argument("--debug", action="store_true", dest="is_debug", default=False, help="Debug mode")
+    args = parser.parse_args()
 
-    api_methods_result = 'ApiMethodResults.xml'
-    if '--method_result' in arg_data:
-        api_methods_result = arg_data['--method_result']
+    if not args.output_dir:
+        setattr(args, "output_dir", "generated_v{}".format(args.version))
 
-    version = '6.4.0'
-    if '--version' in arg_data:
-        version = arg_data['--version']
-
-    output_folder = 'genereted_v6'
-    if '--output_dir' in arg_data:
-        output_folder = arg_data['--output_dir']
-
-    is_debug = '--debug' in arg_data
-
-    package_name = ''
-    if '--package_name' in arg_data:
-        package_name = arg_data['--package_name']
-
-    package_filename = 'cloudshell-automation-api'
-    if '--package_filename' in arg_data:
-        package_filename = arg_data['--package_filename']
-
-    package_root_folder = 'cloudshell'
-    if '--package_root_dir' in arg_data:
-        package_root_folder = arg_data['--package_root_dir']
-
-    api_generator = CloudShellAPIGenerator(api_documentation_path, api_response_path, version,
-                                           api_methods_result, output_folder, package_name, package_filename,
-                                           package_root_folder, is_debug)
+    api_generator = CloudShellAPIGenerator(args.api_documentation_path, args.api_response_path, args.version,
+                                           args.api_methods_result, args.output_dir, args.package_name,
+                                           args.package_filename, args.package_root_dir, args.is_debug)
     api_generator.generate()
-
-
-
-
