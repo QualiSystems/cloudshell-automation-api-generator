@@ -1,10 +1,13 @@
-__author__ = 'g8y3e'
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-import xml.etree.ElementTree as etree
-import urllib2 as urllib23
 import importlib
 import types
+import urllib2 as urllib23
+import xml.etree.ElementTree as etree
+
 from collections import OrderedDict
+
 
 class XMLWrapper:
     @staticmethod
@@ -59,6 +62,7 @@ class XMLWrapper:
     def getStringFromXML(node, pretty_print=False):
         return etree.tostring(node, pretty_print=pretty_print)
 
+
 # map request class
 class CommonAPIRequest:
     def __init__(self, **kwarg):
@@ -97,6 +101,7 @@ class CommonAPIRequest:
 
         return data_dict
 # end map request class
+
 
 class CommonResponseInfo:
     def _attributeCastToType(self, data_str, cast_type_name):
@@ -162,7 +167,7 @@ class CommonResponseInfo:
 
             if not isinstance(attr_type, dict):
                 data = None
-                attr_type_name = attr_type.__name__;
+                attr_type_name = attr_type.__name__
                 if self._isAttributeTypeDefault(attr_type_name):
                     data_str = XMLWrapper.getNodeAttr(xml_object, name)
                     if data_str is None:
@@ -189,7 +194,7 @@ class CommonResponseInfo:
 
                 data_list = list()
                 attr_type_instance = attr_type['list']
-                attr_type_name = attr_type_instance.__name__;
+                attr_type_name = attr_type_instance.__name__
 
                 if child_node is not None:
                     child_count = 0
@@ -221,6 +226,7 @@ class CommonResponseInfo:
 
     def __init__(self, xml_object, find_prefix):
         self._parseAttributesData(self.__class__, xml_object, find_prefix)
+
 
 class CommonApiResult:
     def __init__(self, xml_object):
@@ -254,6 +260,7 @@ class CommonApiResult:
 
         return None
 
+
 class CloudShellAPIError(Exception):
     def __init__(self, code, message, rawxml):
         self.code = code
@@ -265,6 +272,7 @@ class CloudShellAPIError(Exception):
 
     def __repr__(self):
         return 'CloudShell API error ' + str(self.code) + ': ' + self.message
+
 
 class CommonAPISession:
     def __init__(self, host, username, password, domain):
@@ -329,21 +337,26 @@ class CommonAPISession:
                 return request_str
 
             if '__name__' not in object_data:
-                raise Exception('CloudShell API', "Object data doesn't have '__name__' attribute!")
+                # raise Exception('CloudShell API', "Object data doesn't have '__name__' attribute!")
+                for key, value in object_data.iteritems():
+                    request_str += "<{0}>{1}</{0}>\n".format(key, self._serializeRequestData(value))
+            else:
 
-            request_str += '<' + object_data['__name__'] + '>\n'
-            for key, value in object_data.items():
-                if value is None or key == '__name__':
-                    continue
-                request_str += '<' + key + '>' + self._serializeRequestData(value) + '</' + key + '>\n'
-            request_str += '</' + object_data['__name__'] + '>\n'
+                request_str += '<' + object_data['__name__'] + '>\n'
+                for key, value in object_data.items():
+                    if value is None or key == '__name__':
+                        continue
+                    # request_str += '<' + key + '>' + self._serializeRequestData(value) + '</' + key + '>\n'
+                    request_str += "<{0}>{1}</{0}>\n".format(key, self._serializeRequestData(value))
+                request_str += '</' + object_data['__name__'] + '>\n'
         elif isinstance(object_data, list):
             request_str += '\n'
             for value in object_data:
                 request_str += self._serializeRequestData(value, list())
         elif isinstance(object_data, basestring) or isinstance(object_data, int) or isinstance(object_data, float):
             if prev_type is not None and isinstance(prev_type, list):
-                request_str += '<string>' + self._replaceSendValue(str(object_data)) + '</string>\n'
+                # request_str += '<string>' + self._replaceSendValue(str(object_data)) + '</string>\n'
+                request_str += "<{0}>{1}</{0}>\n".format("string", self._replaceSendValue(str(object_data)))
             else:
                 request_str += self._replaceSendValue(str(object_data))
 

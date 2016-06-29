@@ -82,11 +82,14 @@ class TestCloudShellAPISession():
             '''
         expect_str = self._convertRequestStr(expect_request_str)
 
-        app_details =
-        self.api_session.ExecuteEnvironmentCommand(reservationId='{reservationId}', commandName='{commandName}', commandInputs=[OrderedDict([('__name__', 'InputNameValue'), ('Name', '{Name}'), ('Value', '{Value}')])], printOutput='{printOutput}')
+        self.api_session.ExecuteEnvironmentCommand(reservationId='{reservationId}',
+                                                   commandName='{commandName}',
+                                                   commandInputs=[OrderedDict([("SomeParam1", "ParamVALUE1"),("SomeParam2", "ParamVALUE2")]), OrderedDict([('__name__', 'InputNameValue'), ('Name', '{Name}'), ('Value', '{Value}')])],
+                                                   printOutput='{printOutput}')
 
         # self.assertTrue('ExecuteEnvironmentCommand' in TestCloudShellAPISession.REQUEST_DATA)
         received_str = self._convertRequestStr(TestCloudShellAPISession.REQUEST_DATA['ExecuteEnvironmentCommand'])
+        print TestCloudShellAPISession.REQUEST_DATA['ExecuteEnvironmentCommand']
         # self.assertEqual(expect_str, received_str)
 
         TestCloudShellAPISession.REQUEST_DATA.pop('ExecuteEnvironmentCommand', None)
@@ -143,21 +146,38 @@ class TestCloudShellAPISession():
 </EditAppsInReservation>
             '''
         expect_str = self._convertRequestStr(expect_request_str)
-
-        self.api_session.ExecuteEnvironmentCommand(reservationId='{reservationId}',
-                                                   editAppsRequests=[OrderedDict([('__name__', 'editAppsRequests'), ('Name', '{Name}'), ('Value', '{Value}')])], printOutput='{printOutput}')
+        self.api_session.EditAppsInReservation(reservationId='{reservationId}',
+                                               editAppsRequests=[OrderedDict([('__name__', 'ApiEditAppRequest'),
+                                                                              ('Name', '{Name}'),
+                                                                              ('NewName', '{NewName}'),
+                                                                              ('Description', '{Description}'),
+                                                                              ('AppDetails', [OrderedDict([("ModelName", "{ModelName}"),
+                                                                                                           ("Attributes", OrderedDict([("__name__", "NameValuePair"), ("Name", "{AppDetailsName}"), ("Value", "{AppDetailsValue}")])),
+                                                                                                           ("Driver", "{Driver}")]),
+                                                                                              ]),
+                                                                              ("DefaultDeployment", [OrderedDict([("Name", "{DefaultDeploymentName}"),
+                                                                                                                  ("Deployment", OrderedDict([("Attributes", OrderedDict([("__name__", "NameValuePair"), ("Name", "{DeploymentName}"), ("Value", "{DeploymentValue}")]))])),
+                                                                                                                  ("Installation", OrderedDict([("Attributes", OrderedDict([("__name__", "NameValuePair"), ("Name", "{InstallationName}"), ("Value", "{InstallationValue}")])),
+                                                                                                                                                ("Script", OrderedDict([("Name", "{ScriptName}"),
+                                                                                                                                                                        ("Inputs", OrderedDict([("__name__", "ScriptInput"), ("Name", "{ScriptName}"), ("Value", "{ScriptValue}")]))]))]))
+                                                                                                                  ]),
+                                                                                              ]),
+                                                                              ])
+                                                                 ]
+                                               )
 
         # self.assertTrue('ExecuteEnvironmentCommand' in TestCloudShellAPISession.REQUEST_DATA)
-        received_str = self._convertRequestStr(TestCloudShellAPISession.REQUEST_DATA['ExecuteEnvironmentCommand'])
+        received_str = self._convertRequestStr(TestCloudShellAPISession.REQUEST_DATA['EditAppsInReservation'])
+        print TestCloudShellAPISession.REQUEST_DATA['EditAppsInReservation']
         # self.assertEqual(expect_str, received_str)
 
-        TestCloudShellAPISession.REQUEST_DATA.pop('ExecuteEnvironmentCommand', None)
-
+        TestCloudShellAPISession.REQUEST_DATA.pop('EditAppsInReservation', None)
 
 
 if __name__ == "__main__":
     test = TestCloudShellAPISession()
     test.setUp()
     # test.test_ActivateTopology()
-    test.test_ExecuteEnvironmentCommand()
+    # test.test_ExecuteEnvironmentCommand()
+    test.test_EditAppsInReservation()
     test.tearDown()
