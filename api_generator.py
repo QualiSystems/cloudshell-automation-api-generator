@@ -534,6 +534,9 @@ class CloudShellAPIGenerator:
         if class_name in self._inserted_request_classes:
             return
 
+        if len(class_node) == 0:
+            return
+
         self._inserted_request_classes[class_name] = class_name
         api_request_class_template = api_request_class_template.replace('<request_name>', class_name)
         arguments_str = ''
@@ -545,6 +548,9 @@ class CloudShellAPIGenerator:
             parameter_name = XMLWrapper.get_node_name(child_parameters)
             arguments_str += parameter_name + ', '
             arguments_in_method_str += parameter_name + '=' + parameter_name + ', '
+
+            if len(child_parameters._children) > 0:
+                self._parse_api_request_class(child_parameters)
 
             parameter_type = 'str'
             for inner_param_node in child_parameters:
@@ -583,7 +589,7 @@ class CloudShellAPIGenerator:
     def _get_node_mandatory_attribute(self, node, attribute_name):
         attribute_value = XMLWrapper.get_node_attr(node, attribute_name)
         if attribute_value is None:
-            raise Exception('API Generator', "Response object don't have atrribute '" + attribute_name + "'!")
+            raise Exception('API Generator', "Response object don't have attribute '" + attribute_name + "'!")
 
         return attribute_value
 
