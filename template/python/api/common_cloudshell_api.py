@@ -66,7 +66,7 @@ class XMLWrapper:
 # map request class
 class CommonAPIRequest:
     def __init__(self, **kwarg):
-        for key, value in kwarg.items():
+        for key, value in kwarg.iteritems():
             setattr(self, key, value)
 
     @staticmethod
@@ -96,7 +96,7 @@ class CommonAPIRequest:
 
         data_dict = dict()
         data_dict['__name__'] = data.__class__.__name__
-        for key, value in data.__dict__.items():
+        for key, value in data.__dict__.iteritems():
             data_dict[key] = CommonAPIRequest._checkContainerValue(value)
 
         return data_dict
@@ -131,8 +131,8 @@ class CommonResponseInfo:
         return (attr_type_name == 'int' or attr_type_name == 'long' or
                 attr_type_name == 'float' or attr_type_name == 'bool' or attr_type_name == 'str')
 
-    def _is_empty_object(self, atrrib_data):
-        for key, value in atrrib_data.items():
+    def _is_empty_object(self, attrib_data):
+        for key, value in attrib_data.iteritems():
             if isinstance(value, list) and len(value) > 0:
                 return False
 
@@ -161,7 +161,7 @@ class CommonResponseInfo:
 
         empty_object_size = len(self.__dict__)
 
-        for name, attr_type in self.__dict__.items():
+        for name, attr_type in self.__dict__.iteritems():
             if not isinstance(attr_type, (types.TypeType, types.ClassType)) and not isinstance(attr_type, dict):
                 continue
 
@@ -219,7 +219,7 @@ class CommonResponseInfo:
                 attrib_data_dict[name] = data_list
 
         if not self._is_empty_object(attrib_data_dict):
-            for key, value in attrib_data_dict.items():
+            for key, value in attrib_data_dict.iteritems():
                 setattr(self, key, value)
         elif len(self.__dict__) == empty_object_size:
             setattr(self, "is_empty_object", True)
@@ -311,7 +311,7 @@ class CommonAPISession:
     def _encodeHeaders(self):
         self.headers = dict((key.encode('ascii') if isinstance(key, unicode) else key,
                              value.encode('ascii') if isinstance(value, unicode) else value)
-                            for key, value in self.headers.items())
+                            for key, value in self.headers.iteritems())
 
     def _sendRequest(self, operation, message, request_headers):
         """
@@ -337,17 +337,20 @@ class CommonAPISession:
                 return request_str
 
             if '__name__' not in object_data:
-                # raise Exception('CloudShell API', "Object data doesn't have '__name__' attribute!")
-                for key, value in object_data.iteritems():
-                    request_str += "<{0}>{1}</{0}>\n".format(key, self._serializeRequestData(value))
+                raise Exception('CloudShell API', "Object data doesn't have '__name__' attribute!")
+                # for key, value in object_data.iteritems():
+                #     request_str += "<{0}>{1}</{0}>\n".format(key, self._serializeRequestData(value))
             else:
 
                 request_str += '<' + object_data['__name__'] + '>\n'
-                for key, value in object_data.items():
+                for key, value in object_data.iteritems():
                     if value is None or key == '__name__':
                         continue
-                    # request_str += '<' + key + '>' + self._serializeRequestData(value) + '</' + key + '>\n'
-                    request_str += "<{0}>{1}</{0}>\n".format(key, self._serializeRequestData(value))
+
+                    if isinstance(value, dict) and value.get("__name__", None) == key:
+                        request_str += self._serializeRequestData(object_data=value)
+                    else:
+                        request_str += "<{0}>{1}</{0}>\n".format(key, self._serializeRequestData(object_data=value))
                 request_str += '</' + object_data['__name__'] + '>\n'
         elif isinstance(object_data, list):
             request_str += '\n'
