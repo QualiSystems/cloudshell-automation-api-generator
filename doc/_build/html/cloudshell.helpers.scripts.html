@@ -1,0 +1,535 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>cloudshell.helpers.scripts package &mdash; CloudShell Python API 7.0.0.134 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="CloudShell Python API 7.0.0.134 documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> CloudShell Python API
+          
+
+          
+            
+            <img src="_static/just_logo.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="cloudshell.api.html">cloudshell.api package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">CloudShell Python API</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>cloudshell.helpers.scripts package</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/cloudshell.helpers.scripts.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cloudshell-helpers-scripts-package">
+<h1>cloudshell.helpers.scripts package<a class="headerlink" href="#cloudshell-helpers-scripts-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-cloudshell.helpers.scripts.cloudshell_dev_helpers">
+<span id="cloudshell-helpers-scripts-cloudshell-dev-helpers-module"></span><h2>cloudshell.helpers.scripts.cloudshell_dev_helpers module<a class="headerlink" href="#module-cloudshell.helpers.scripts.cloudshell_dev_helpers" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cloudshell.helpers.scripts.cloudshell_dev_helpers.attach_to_cloudshell">
+<tt class="descclassname">cloudshell.helpers.scripts.cloudshell_dev_helpers.</tt><tt class="descname">attach_to_cloudshell</tt><big>(</big><em>filename='quali_config.json'</em><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_dev_helpers.html#attach_to_cloudshell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_dev_helpers.attach_to_cloudshell" title="Permalink to this definition">¶</a></dt>
+<dd><p>This helper is intended to make it easier to test scripts. When a script
+gets executed by CloudShell, the Execution Server sets up several variables
+as a context for the execution.
+This function simulates the same conditions so the script can be tested
+offline.
+Using this overload, all information is retrieved from a JSON config file
+which should be of the following format:
+{</p>
+<blockquote>
+<div>&#8220;user&#8221; : &#8220;admin&#8221;,
+&#8220;password&#8221; : &#8220;admin&#8221;,
+&#8220;domain&#8221; : &#8220;Global&#8221;,
+&#8220;server_address&#8221; : &#8220;localhost&#8221;,
+&#8220;cloudshell_api_port&#8221; : &#8220;8028&#8221;</div></blockquote>
+<p>}
+:param str filename: The configuration filename path</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cloudshell.helpers.scripts.cloudshell_dev_helpers.attach_to_cloudshell_as">
+<tt class="descclassname">cloudshell.helpers.scripts.cloudshell_dev_helpers.</tt><tt class="descname">attach_to_cloudshell_as</tt><big>(</big><em>user</em>, <em>password</em>, <em>domain</em>, <em>reservation_id</em>, <em>server_address='localhost'</em>, <em>cloudshell_api_port='8028'</em>, <em>command_parameters={}</em>, <em>resource_name=None</em>, <em>service_name=None</em><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_dev_helpers.html#attach_to_cloudshell_as"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_dev_helpers.attach_to_cloudshell_as" title="Permalink to this definition">¶</a></dt>
+<dd><p>This helper is intended to make it easier to test scripts. When a script
+gets executed by CloudShell, the Execution Server sets up several variables
+as a context for the execution.
+This function simulates the same conditions so the script can be tested
+offline.
+:param str user: The user the driver should authenticate as
+:param str passwrd: Password for the specified user
+:param str reservation_id: The reservation the driver should attach to
+:param str server_address: The address of the CloudShell server
+(default to localhost)
+:param str cloudshell_api_port: The API port to use (default 8028)
+:param dict[str,str] command_parameters: user parameters passed to this command
+:param str resource_name: For resource commands only specify the name of the resource</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cloudshell.helpers.scripts.cloudshell_dev_helpers.is_dev_mode">
+<tt class="descclassname">cloudshell.helpers.scripts.cloudshell_dev_helpers.</tt><tt class="descname">is_dev_mode</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_dev_helpers.html#is_dev_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_dev_helpers.is_dev_mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-cloudshell.helpers.scripts.cloudshell_scripts_helpers">
+<span id="cloudshell-helpers-scripts-cloudshell-scripts-helpers-module"></span><h2>cloudshell.helpers.scripts.cloudshell_scripts_helpers module<a class="headerlink" href="#module-cloudshell.helpers.scripts.cloudshell_scripts_helpers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ConnectivityContextDetails">
+<em class="property">class </em><tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">ConnectivityContextDetails</tt><big>(</big><em>server_address</em>, <em>cloudshell_api_port</em>, <em>admin_user</em>, <em>admin_pass</em><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#ConnectivityContextDetails"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ConnectivityContextDetails" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ConnectivityContextDetails.admin_pass">
+<tt class="descname">admin_pass</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ConnectivityContextDetails.admin_pass" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ConnectivityContextDetails.admin_user">
+<tt class="descname">admin_user</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ConnectivityContextDetails.admin_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ConnectivityContextDetails.cloudshell_api_port">
+<tt class="descname">cloudshell_api_port</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ConnectivityContextDetails.cloudshell_api_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ConnectivityContextDetails.server_address">
+<tt class="descname">server_address</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ConnectivityContextDetails.server_address" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.EnvironmentParameters">
+<em class="property">class </em><tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">EnvironmentParameters</tt><big>(</big><em>global_inputs</em>, <em>resource_requirements</em>, <em>resource_additional_info</em><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#EnvironmentParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.EnvironmentParameters" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.EnvironmentParameters.global_inputs">
+<tt class="descname">global_inputs</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.EnvironmentParameters.global_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : dict[str,str]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.EnvironmentParameters.resource_additional_info">
+<tt class="descname">resource_additional_info</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.EnvironmentParameters.resource_additional_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : ResourceInputs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.EnvironmentParameters.resource_requirements">
+<tt class="descname">resource_requirements</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.EnvironmentParameters.resource_requirements" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : ResourceInputs</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails">
+<em class="property">class </em><tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">ReservationContextDetails</tt><big>(</big><em>environment_name</em>, <em>domain</em>, <em>description</em>, <em>parameters</em>, <em>owner_user</em>, <em>owner_password</em>, <em>reservation_id</em><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#ReservationContextDetails"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails.description">
+<tt class="descname">description</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails.domain">
+<tt class="descname">domain</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails.domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails.environment_name">
+<tt class="descname">environment_name</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails.environment_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails.id">
+<tt class="descname">id</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails.owner_password">
+<tt class="descname">owner_password</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails.owner_password" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails.owner_user">
+<tt class="descname">owner_user</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails.owner_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails.parameters">
+<tt class="descname">parameters</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : EnvironmentParameters</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails">
+<em class="property">class </em><tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">ResourceContextDetails</tt><big>(</big><em>name</em>, <em>address</em>, <em>model</em>, <em>family</em>, <em>description</em>, <em>fullname</em>, <em>attributes</em><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#ResourceContextDetails"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails.address">
+<tt class="descname">address</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails.address" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails.attributes">
+<tt class="descname">attributes</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails.attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : dict[str,str]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails.description">
+<tt class="descname">description</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails.family">
+<tt class="descname">family</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails.family" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails.fullname">
+<tt class="descname">fullname</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails.fullname" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails.model">
+<tt class="descname">model</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputData">
+<em class="property">class </em><tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">ResourceInputData</tt><big>(</big><em>resource_name</em>, <em>param_name</em>, <em>value</em>, <em>possible_values</em><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#ResourceInputData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputData" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputData.param_name">
+<tt class="descname">param_name</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputData.param_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputData.possible_values">
+<tt class="descname">possible_values</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputData.possible_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : list[str]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputData.resource_name">
+<tt class="descname">resource_name</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputData.resource_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputData.value">
+<tt class="descname">value</tt><em class="property"> = None</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputData.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : str</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputs">
+<em class="property">class </em><tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">ResourceInputs</tt><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#ResourceInputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputs" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputs.dictionary">
+<tt class="descname">dictionary</tt><em class="property"> = {}</em><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputs.dictionary" title="Permalink to this definition">¶</a></dt>
+<dd><p>:type : dict[str, dict[str, ResourceInputData]]</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_api_session">
+<tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">get_api_session</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#get_api_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_api_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>A shortcut to get an API session based on the built in env. variables
+:rtype: CloudShellAPISession</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_connectivity_context_details">
+<tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">get_connectivity_context_details</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#get_connectivity_context_details"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_connectivity_context_details" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the connectivity details dictionary for this execution
+:rtype: ConnectivityContextDetails</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_connectivity_context_details_dict">
+<tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">get_connectivity_context_details_dict</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#get_connectivity_context_details_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_connectivity_context_details_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the connectivity details dictionary for this execution
+:rtype: dict[str,str]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_global_inputs">
+<tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">get_global_inputs</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#get_global_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_global_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the global inputs dictionary for the current reservation
+:rtype: dict[str,str]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_reservation_context_details">
+<tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">get_reservation_context_details</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#get_reservation_context_details"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_reservation_context_details" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the reservation details for this execution
+These details are automatically passed to the driver by CloudShell</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ReservationContextDetails</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_reservation_context_details_dict">
+<tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">get_reservation_context_details_dict</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#get_reservation_context_details_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_reservation_context_details_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the reservation details dictionary for this execution
+These details are automatically passed to the driver by CloudShell
+:rtype: dict[str,str]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_resource_additional_info_inputs">
+<tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">get_resource_additional_info_inputs</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#get_resource_additional_info_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_resource_additional_info_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the resource additional inputs inputs dictionary
+:rtype: ResourceInputs</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_resource_context_details">
+<tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">get_resource_context_details</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#get_resource_context_details"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_resource_context_details" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the resource details dictionary for this execution
+These details are automatically passed to the driver by CloudShell</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ResourceContextDetails</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_resource_context_details_dict">
+<tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">get_resource_context_details_dict</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#get_resource_context_details_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_resource_context_details_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the resource details dictionary for this execution
+These details are automatically passed to the driver by CloudShell
+:rtype: dict[str,str]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_resource_requirement_inputs">
+<tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">get_resource_requirement_inputs</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#get_resource_requirement_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_resource_requirement_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the resource requirements inputs dictionary
+:rtype: ResourceInputs</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_user_param">
+<tt class="descclassname">cloudshell.helpers.scripts.cloudshell_scripts_helpers.</tt><tt class="descname">get_user_param</tt><big>(</big><em>parameter</em><big>)</big><a class="reference internal" href="_modules/cloudshell/helpers/scripts/cloudshell_scripts_helpers.html#get_user_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_user_param" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a user param which is automaticlaly passed to the script
+as an environment variable
+:param str parameter: The name of the user parameter
+:rtype: str</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-cloudshell.helpers.scripts">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-cloudshell.helpers.scripts" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Quali.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'7.0.0.134',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

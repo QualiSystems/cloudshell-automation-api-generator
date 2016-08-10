@@ -1,0 +1,447 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>cloudshell.helpers.scripts.cloudshell_dev_helpers &mdash; CloudShell Python API 7.0.0.134 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="CloudShell Python API 7.0.0.134 documentation" href="../../../../index.html"/>
+        <link rel="up" title="Module code" href="../../../index.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> CloudShell Python API
+          
+
+          
+            
+            <img src="../../../../_static/just_logo.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cloudshell.api.html">cloudshell.api package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../../index.html">CloudShell Python API</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      
+    <li>cloudshell.helpers.scripts.cloudshell_dev_helpers</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for cloudshell.helpers.scripts.cloudshell_dev_helpers</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">cloudshell_scripts_helpers</span> <span class="kn">as</span> <span class="nn">helpers</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">from</span> <span class="nn">cloudshell.api.cloudshell_api</span> <span class="kn">import</span> <span class="n">ReservationDescriptionInfo</span>
+
+<span class="n">CONNECTIVITY_DETAILS_TEMPLATE</span> <span class="o">=</span> <span class="s">&#39;&quot;tsAPIPort&quot;: &quot;{cloudshell_api_port}&quot;,&#39;</span>\
+	<span class="s">&#39;&quot;adminPass&quot;: &quot;{password}&quot;, &quot;adminUser&quot;: &quot;{user}&quot;, &quot;serverAddress&quot;:&#39;</span>\
+	<span class="s">&#39;&quot;{server_address}&quot;&#39;</span>
+
+<span class="n">RESERVATIONDETAILS_TEMPLATE</span> <span class="o">=</span> <span class="s">&#39;&quot;environmentName&quot;:&quot;{environment_name}&quot;,&#39;</span>\
+	<span class="s">&#39;&quot;domain&quot;:&quot;{domain}&quot;, &quot;description&quot;:&#39;</span>\
+	<span class="s">&#39;&quot;{description}&quot;,&quot;parameters&quot;:{parameters_template},&quot;ownerUser&quot;:&#39;</span>\
+	<span class="s">&#39;&quot;{owner_user}&quot;,&quot;ownerPass&quot;:&quot;{owner_pass}&quot;,&quot;id&quot;:&quot;{id}&quot;&#39;</span>
+
+<span class="n">RESOURCEDETAILS_TEMPLATE</span> <span class="o">=</span> <span class="s">&#39;&quot;name&quot;:&quot;{name}&quot;,&quot;address&quot;:&quot;{address}&quot;,&quot;model&quot;:&quot;{model}&quot;,&#39;</span> \
+                           <span class="s">&#39;&quot;family&quot;:&quot;{family}&quot;,&quot;description&quot;:&quot;{description}&quot;,&#39;</span>\
+                           <span class="s">&#39;&quot;fullname&quot;:&quot;{fullname}&quot;,&quot;attributes&quot;:{attributes}&#39;</span>
+
+<span class="n">RESOURCE_ATTRIBUTES_TEMPLATE</span> <span class="o">=</span><span class="s">&#39;&quot;{name}&quot;:&quot;{value}&quot;&#39;</span>
+
+<span class="n">PARAMETERS_TEMPLATE</span> <span class="o">=</span> <span class="s">&#39;&quot;resourceRequirements&quot;:&#39;</span>\
+	<span class="s">&#39;[{requirement_template}],&quot;globalInputs&quot;:[{global_template}],&#39;</span>\
+	<span class="s">&#39;&quot;resourceAdditionalInfo&quot;:[{additional_info_template}]&#39;</span>
+
+<span class="n">GLOBAL_PARAMETER_TEMPLATE</span><span class="o">=</span> <span class="s">&#39;&quot;parameterName&quot;: &quot;{name}&quot;, &quot;value&quot;: &quot;{value}&quot;&#39;</span>
+
+<span class="n">RESOURCE_REQUIREMENT_TEMPLATE</span> <span class="o">=</span> <span class="s">&#39;&quot;resourceName&quot;: &quot;{resource_name}&quot;, &quot;value&quot;: &quot;{value}&quot;, &quot;parameterName&quot;: &quot;{name}&quot;&#39;</span>
+
+<span class="n">ADDITIONAL_INFO_TEMPLATE</span> <span class="o">=</span> <span class="s">&#39;&quot;resourceName&quot;: &quot;{resource_name}&quot;, &quot;value&quot;: &quot;{value}&quot;, &quot;parameterName&quot;: &quot;{name}&quot;, &quot;possibleValues&quot; : &quot;{possibleValues}&quot;&#39;</span>
+
+
+<div class="viewcode-block" id="is_dev_mode"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_dev_helpers.is_dev_mode">[docs]</a><span class="k">def</span> <span class="nf">is_dev_mode</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;qualiConnectivityContext&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">None</span> <span class="ow">or</span> \
+           <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;DEVBOOTSTRAP&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">None</span>
+
+</div>
+<div class="viewcode-block" id="attach_to_cloudshell_as"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_dev_helpers.attach_to_cloudshell_as">[docs]</a><span class="k">def</span> <span class="nf">attach_to_cloudshell_as</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">reservation_id</span><span class="p">,</span>
+                            <span class="n">server_address</span><span class="o">=</span><span class="s">&#39;localhost&#39;</span><span class="p">,</span>
+                            <span class="n">cloudshell_api_port</span><span class="o">=</span><span class="s">&#39;8028&#39;</span><span class="p">,</span>
+                            <span class="n">command_parameters</span><span class="o">=</span><span class="p">{},</span> <span class="n">resource_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This helper is intended to make it easier to test scripts. When a script</span>
+<span class="sd">    gets executed by CloudShell, the Execution Server sets up several variables</span>
+<span class="sd">    as a context for the execution.</span>
+<span class="sd">    This function simulates the same conditions so the script can be tested</span>
+<span class="sd">    offline.</span>
+<span class="sd">    :param str user: The user the driver should authenticate as</span>
+<span class="sd">    :param str passwrd: Password for the specified user</span>
+<span class="sd">    :param str reservation_id: The reservation the driver should attach to</span>
+<span class="sd">    :param str server_address: The address of the CloudShell server</span>
+<span class="sd">    (default to localhost)</span>
+<span class="sd">    :param str cloudshell_api_port: The API port to use (default 8028)</span>
+<span class="sd">    :param dict[str,str] command_parameters: user parameters passed to this command</span>
+<span class="sd">    :param str resource_name: For resource commands only specify the name of the resource</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_bootstrap_data</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">reservation_id</span><span class="p">,</span>
+                    <span class="n">server_address</span><span class="p">,</span> <span class="n">cloudshell_api_port</span><span class="p">,</span>
+                    <span class="n">command_parameters</span><span class="p">,</span> <span class="n">resource_name</span><span class="p">,</span> <span class="n">service_name</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="attach_to_cloudshell"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_dev_helpers.attach_to_cloudshell">[docs]</a><span class="k">def</span> <span class="nf">attach_to_cloudshell</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&#39;quali_config.json&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This helper is intended to make it easier to test scripts. When a script</span>
+<span class="sd">    gets executed by CloudShell, the Execution Server sets up several variables</span>
+<span class="sd">    as a context for the execution.</span>
+<span class="sd">    This function simulates the same conditions so the script can be tested</span>
+<span class="sd">    offline.</span>
+<span class="sd">    Using this overload, all information is retrieved from a JSON config file</span>
+<span class="sd">    which should be of the following format:</span>
+<span class="sd">    {</span>
+<span class="sd">        &quot;user&quot; : &quot;admin&quot;,</span>
+<span class="sd">        &quot;password&quot; : &quot;admin&quot;,</span>
+<span class="sd">        &quot;domain&quot; : &quot;Global&quot;,</span>
+<span class="sd">        &quot;server_address&quot; : &quot;localhost&quot;,</span>
+<span class="sd">        &quot;cloudshell_api_port&quot; : &quot;8028&quot;</span>
+<span class="sd">    }</span>
+<span class="sd">    :param str filename: The configuration filename path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">is_dev_mode</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;quali_config.json&quot;</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myfile</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">myfile</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;user&#39;</span><span class="p">]</span>
+            <span class="n">password</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;password&#39;</span><span class="p">]</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;domain&#39;</span><span class="p">]</span>
+            <span class="n">server_address</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;server_address&#39;</span><span class="p">]</span>
+            <span class="n">cloudshell_api_port</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;cloudshell_api_port&#39;</span><span class="p">]</span>
+            <span class="n">reservation_id</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;reservation_id&#39;</span><span class="p">]</span>
+            <span class="n">command_parameters</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s">&#39;command_parameters&#39;</span><span class="p">]</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;DEVBOOTSTRAP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;True&#39;</span>
+            <span class="n">resource_name</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;resource_name&#39;</span><span class="p">)</span>
+            <span class="n">service_name</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;service_name&#39;</span><span class="p">)</span>
+            <span class="n">_bootstrap_data</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">reservation_id</span><span class="p">,</span>
+                            <span class="n">server_address</span><span class="p">,</span> <span class="n">cloudshell_api_port</span><span class="p">,</span>
+                            <span class="n">command_parameters</span><span class="p">,</span> <span class="n">resource_name</span><span class="p">,</span><span class="n">service_name</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;No config file found at:&#39;</span><span class="p">,</span> <span class="n">filename</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_bootstrap_data</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">reservation_id</span><span class="p">,</span>
+                    <span class="n">server_address</span><span class="o">=</span><span class="s">&#39;localhost&#39;</span><span class="p">,</span> <span class="n">cloudshell_api_port</span><span class="o">=</span><span class="s">&#39;8028&#39;</span><span class="p">,</span>
+                    <span class="n">command_parameters</span><span class="o">=</span><span class="p">{},</span> <span class="n">resource_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This helper is intended to make it easier to test scripts. When a script</span>
+<span class="sd">    gets executed by CloudShell, the Execution Server sets up several variables</span>
+<span class="sd">    as a context for the execution.</span>
+<span class="sd">    This function simulates the same conditions so the script can be tested</span>
+<span class="sd">    offline.</span>
+<span class="sd">    :param str user: The user the driver should authenticate as</span>
+<span class="sd">    :param str passwrd: Password for the specified user</span>
+<span class="sd">    :param str reservation_id: The reservation the driver should attach to</span>
+<span class="sd">    :param str server_address: The address of the CloudShell server</span>
+<span class="sd">    (default to localhost)</span>
+<span class="sd">    :param str cloudshell_api_port: The API port to use (default 8028)</span>
+<span class="sd">    :param dict[str,str] command_parameters: user parameters passed to this command</span>
+<span class="sd">    :param str resource_name: For resource commands only specify the name of the resource</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">is_dev_mode</span><span class="p">():</span>
+        <span class="c"># We assume that if the env. variable doesn&#39;t exist we need to bootstrap</span>
+        <span class="n">quali_connectivity</span> <span class="o">=</span> <span class="n">CONNECTIVITY_DETAILS_TEMPLATE</span><span class="o">.</span>\
+            <span class="n">format</span><span class="p">(</span><span class="n">cloudshell_api_port</span><span class="o">=</span><span class="n">cloudshell_api_port</span><span class="p">,</span>
+                   <span class="n">server_address</span><span class="o">=</span><span class="n">server_address</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span>
+                   <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+
+        <span class="c"># Creat an initial template for reservation details just to get more info</span>
+        <span class="n">reservation_details</span> <span class="o">=</span> <span class="n">RESERVATIONDETAILS_TEMPLATE</span><span class="o">.</span>\
+            <span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">reservation_id</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s">&#39;Global&#39;</span><span class="p">,</span>
+                   <span class="n">description</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">environment_name</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+                   <span class="n">parameters_template</span><span class="o">=</span><span class="s">&#39;[]&#39;</span><span class="p">,</span>
+                   <span class="n">owner_user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">owner_pass</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;qualiConnectivityContext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;{&#39;</span> <span class="o">+</span> <span class="n">quali_connectivity</span> <span class="o">+</span> <span class="s">&#39;}&#39;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;reservationContext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;{&#39;</span> <span class="o">+</span> <span class="n">reservation_details</span> <span class="o">+</span> <span class="s">&#39;}&#39;</span>
+
+        <span class="n">parameters_details</span> <span class="o">=</span> <span class="n">_extract_parameters_JSON</span><span class="p">(</span><span class="n">reservation_id</span><span class="p">)</span>
+
+        <span class="n">reservation_desc</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_api_session</span><span class="p">()</span> \
+                                        <span class="o">.</span><span class="n">GetReservationDetails</span><span class="p">(</span><span class="n">reservation_id</span><span class="p">)</span> \
+                                        <span class="o">.</span><span class="n">ReservationDescription</span>
+
+        <span class="n">reservation_details</span> <span class="o">=</span> <span class="n">RESERVATIONDETAILS_TEMPLATE</span><span class="o">.</span>\
+            <span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">reservation_id</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">reservation_desc</span><span class="o">.</span><span class="n">DomainName</span><span class="p">,</span>
+                   <span class="n">description</span><span class="o">=</span><span class="n">reservation_desc</span><span class="o">.</span><span class="n">Description</span><span class="p">,</span>
+                   <span class="n">parameters_template</span><span class="o">=</span><span class="s">&#39;{&#39;</span> <span class="o">+</span> <span class="n">parameters_details</span> <span class="o">+</span> <span class="s">&#39;}&#39;</span><span class="p">,</span>
+                   <span class="n">environment_name</span><span class="o">=</span><span class="n">reservation_desc</span><span class="o">.</span><span class="n">Name</span><span class="p">,</span>
+                   <span class="n">owner_user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">owner_pass</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+
+        <span class="c"># Update the reservation details again with the full info</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;reservationContext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;{&#39;</span> <span class="o">+</span> <span class="n">reservation_details</span> <span class="o">+</span> <span class="s">&#39;}&#39;</span>
+        <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">command_parameters</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">parameter</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">=</span> <span class="n">command_parameters</span><span class="p">[</span><span class="n">parameter</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">resource_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;resourceContext&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">_get_resource_context</span><span class="p">(</span><span class="n">resource_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">service_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;resourceContext&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">_get_service_context</span><span class="p">(</span><span class="n">reservation_desc</span><span class="p">,</span><span class="n">service_name</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_resource_context</span><span class="p">(</span><span class="n">resource_name</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_api_session</span><span class="p">()</span><span class="o">.</span><span class="n">GetResourceDetails</span><span class="p">(</span><span class="n">resource_name</span><span class="p">)</span>
+    <span class="n">attributes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">ResourceAttributes</span><span class="p">:</span>
+        <span class="n">attribute_json</span> <span class="o">=</span> <span class="n">RESOURCE_ATTRIBUTES_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">attribute</span><span class="o">.</span><span class="n">Name</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">attribute</span><span class="o">.</span><span class="n">Value</span><span class="p">)</span>
+        <span class="n">attributes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attribute_json</span><span class="p">)</span>
+    <span class="n">resource_details</span> <span class="o">=</span> <span class="n">RESOURCEDETAILS_TEMPLATE</span><span class="o">.</span>\
+        <span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">Name</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">Address</span><span class="p">,</span>
+               <span class="n">model</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">ResourceModelName</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">ResourceFamilyName</span><span class="p">,</span>
+               <span class="n">description</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">Description</span><span class="p">,</span> <span class="n">fullname</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">Name</span><span class="p">,</span>
+               <span class="n">attributes</span><span class="o">=</span><span class="s">&#39;{&#39;</span><span class="o">+</span><span class="n">string</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;}&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s">&#39;{&#39;</span> <span class="o">+</span> <span class="n">resource_details</span> <span class="o">+</span> <span class="s">&#39;}&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">_get_first_matching_service</span><span class="p">(</span><span class="n">services</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">services</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">Alias</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">service</span>
+    <span class="k">return</span> <span class="bp">None</span>
+
+
+<span class="k">def</span> <span class="nf">_get_service_context</span><span class="p">(</span><span class="n">reservation_description</span><span class="p">,</span> <span class="n">service_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;:param ReservationDescriptionInfo reservation_description: &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;:param str service_name: &quot;&quot;&quot;</span>
+
+    <span class="n">service</span> <span class="o">=</span> <span class="n">_get_first_matching_service</span><span class="p">(</span><span class="n">reservation_description</span><span class="o">.</span><span class="n">Services</span><span class="p">,</span><span class="n">service_name</span><span class="p">)</span>
+    <span class="n">attributes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">service</span><span class="o">.</span><span class="n">Attributes</span><span class="p">:</span>
+        <span class="n">attribute_json</span> <span class="o">=</span> <span class="n">RESOURCE_ATTRIBUTES_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">attribute</span><span class="o">.</span><span class="n">Name</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">attribute</span><span class="o">.</span><span class="n">Value</span><span class="p">)</span>
+        <span class="n">attributes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attribute_json</span><span class="p">)</span>
+    <span class="n">resource_details</span> <span class="o">=</span> <span class="n">RESOURCEDETAILS_TEMPLATE</span><span class="o">.</span>\
+        <span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">Alias</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span>
+               <span class="n">model</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">ServiceName</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span>
+               <span class="n">description</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">fullname</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">Alias</span><span class="p">,</span>
+               <span class="n">attributes</span><span class="o">=</span><span class="s">&#39;{&#39;</span><span class="o">+</span><span class="n">string</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;}&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s">&#39;{&#39;</span> <span class="o">+</span> <span class="n">resource_details</span> <span class="o">+</span> <span class="s">&#39;}&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">_set_env_variable</span><span class="p">(</span><span class="n">variable_name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_extract_parameters_JSON</span><span class="p">(</span><span class="n">reservation_id</span><span class="p">):</span>
+    <span class="n">inputs_desc</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_api_session</span><span class="p">()</span> \
+        <span class="o">.</span><span class="n">GetReservationInputs</span><span class="p">(</span><span class="n">reservation_id</span><span class="p">)</span>
+    <span class="n">global_inputs_JSON</span> <span class="o">=</span> <span class="n">_extract_global_inputs_JSON</span><span class="p">(</span><span class="n">inputs_desc</span><span class="p">)</span>
+    <span class="n">required_inputs_JSON</span> <span class="o">=</span> <span class="n">_extract_required_inputs_JSON</span><span class="p">(</span><span class="n">inputs_desc</span><span class="p">)</span>
+    <span class="n">additional_inputs_JSON</span> <span class="o">=</span> <span class="n">_extract_addition_inputs_JSON</span><span class="p">(</span><span class="n">inputs_desc</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">PARAMETERS_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">requirement_template</span><span class="o">=</span><span class="n">required_inputs_JSON</span><span class="p">,</span>
+        <span class="n">additional_info_template</span><span class="o">=</span><span class="n">additional_inputs_JSON</span><span class="p">,</span>
+        <span class="n">global_template</span><span class="o">=</span><span class="n">global_inputs_JSON</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_extract_global_inputs_JSON</span><span class="p">(</span><span class="n">inputs_desc</span><span class="p">):</span>
+    <span class="n">global_inputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">global_input</span> <span class="ow">in</span> <span class="n">inputs_desc</span><span class="o">.</span><span class="n">GlobalInputs</span><span class="p">:</span>
+        <span class="n">global_input_JSON</span> <span class="o">=</span> <span class="n">GLOBAL_PARAMETER_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">global_input</span><span class="o">.</span><span class="n">ParamName</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">global_input</span><span class="o">.</span><span class="n">Value</span><span class="p">)</span>
+        <span class="n">global_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;{&#39;</span> <span class="o">+</span> <span class="n">global_input_JSON</span> <span class="o">+</span> <span class="s">&#39;}&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">global_inputs</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_extract_required_inputs_JSON</span><span class="p">(</span><span class="n">inputs_desc</span><span class="p">):</span>
+    <span class="n">required_inputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">required_input</span> <span class="ow">in</span> <span class="n">inputs_desc</span><span class="o">.</span><span class="n">RequiredInputs</span><span class="p">:</span>
+        <span class="n">required_input_JSON</span> <span class="o">=</span> <span class="n">RESOURCE_REQUIREMENT_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">required_input</span><span class="o">.</span><span class="n">ParamName</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">required_input</span><span class="o">.</span><span class="n">Value</span><span class="p">,</span>
+            <span class="n">resource_name</span><span class="o">=</span><span class="n">required_input</span><span class="o">.</span><span class="n">ResourceName</span><span class="p">)</span>
+        <span class="n">required_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;{&#39;</span> <span class="o">+</span> <span class="n">required_input_JSON</span> <span class="o">+</span> <span class="s">&#39;}&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">required_inputs</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_extract_addition_inputs_JSON</span><span class="p">(</span><span class="n">inputs_desc</span><span class="p">):</span>
+    <span class="n">additional_inputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">additional_input</span> <span class="ow">in</span> <span class="n">inputs_desc</span><span class="o">.</span><span class="n">AdditionalInfoInputs</span><span class="p">:</span>
+        <span class="n">additional_input_JSON</span> <span class="o">=</span> <span class="n">ADDITIONAL_INFO_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">additional_input</span><span class="o">.</span><span class="n">ParamName</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">additional_input</span><span class="o">.</span><span class="n">Value</span><span class="p">,</span>
+            <span class="n">resource_name</span><span class="o">=</span><span class="n">additional_input</span><span class="o">.</span><span class="n">ResourceName</span><span class="p">,</span>
+            <span class="n">possibleValues</span><span class="o">=</span><span class="n">additional_input</span><span class="o">.</span><span class="n">PossibleValues</span><span class="p">)</span>
+        <span class="n">additional_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;{&#39;</span> <span class="o">+</span> <span class="n">additional_input_JSON</span> <span class="o">+</span> <span class="s">&#39;}&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">additional_inputs</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Quali.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'7.0.0.134',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

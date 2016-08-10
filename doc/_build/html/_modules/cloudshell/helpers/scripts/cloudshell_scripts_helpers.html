@@ -1,0 +1,445 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>cloudshell.helpers.scripts.cloudshell_scripts_helpers &mdash; CloudShell Python API 7.0.0.134 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="CloudShell Python API 7.0.0.134 documentation" href="../../../../index.html"/>
+        <link rel="up" title="Module code" href="../../../index.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> CloudShell Python API
+          
+
+          
+            
+            <img src="../../../../_static/just_logo.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                7.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cloudshell.api.html">cloudshell.api package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../../index.html">CloudShell Python API</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      
+    <li>cloudshell.helpers.scripts.cloudshell_scripts_helpers</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for cloudshell.helpers.scripts.cloudshell_scripts_helpers</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">cloudshell.api.cloudshell_api</span> <span class="kn">import</span> <span class="n">CloudShellAPISession</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<div class="viewcode-block" id="get_user_param"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_user_param">[docs]</a><span class="k">def</span> <span class="nf">get_user_param</span><span class="p">(</span><span class="n">parameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a user param which is automaticlaly passed to the script</span>
+<span class="sd">    as an environment variable</span>
+<span class="sd">    :param str parameter: The name of the user parameter</span>
+<span class="sd">    :rtype: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">parameter</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+
+</div>
+<div class="viewcode-block" id="get_api_session"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_api_session">[docs]</a><span class="k">def</span> <span class="nf">get_api_session</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A shortcut to get an API session based on the built in env. variables</span>
+<span class="sd">    :rtype: CloudShellAPISession</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">con_details</span> <span class="o">=</span> <span class="n">get_connectivity_context_details_dict</span><span class="p">()</span>
+    <span class="n">env_details</span> <span class="o">=</span> <span class="n">get_reservation_context_details_dict</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">CloudShellAPISession</span><span class="p">(</span><span class="n">con_details</span><span class="p">[</span><span class="s">&#39;serverAddress&#39;</span><span class="p">],</span>
+                                <span class="n">con_details</span><span class="p">[</span><span class="s">&#39;adminUser&#39;</span><span class="p">],</span>
+                                <span class="n">con_details</span><span class="p">[</span><span class="s">&#39;adminPass&#39;</span><span class="p">],</span>
+                                <span class="n">env_details</span><span class="p">[</span><span class="s">&#39;domain&#39;</span><span class="p">])</span>
+
+</div>
+<div class="viewcode-block" id="get_reservation_context_details_dict"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_reservation_context_details_dict">[docs]</a><span class="k">def</span> <span class="nf">get_reservation_context_details_dict</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the reservation details dictionary for this execution</span>
+<span class="sd">    These details are automatically passed to the driver by CloudShell</span>
+<span class="sd">    :rtype: dict[str,str]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_get_quali_env_variable_object</span><span class="p">(</span><span class="s">&#39;reservationContext&#39;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="get_resource_context_details_dict"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_resource_context_details_dict">[docs]</a><span class="k">def</span> <span class="nf">get_resource_context_details_dict</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the resource details dictionary for this execution</span>
+<span class="sd">    These details are automatically passed to the driver by CloudShell</span>
+<span class="sd">    :rtype: dict[str,str]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_get_quali_env_variable_object</span><span class="p">(</span><span class="s">&#39;resourceContext&#39;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="get_reservation_context_details"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_reservation_context_details">[docs]</a><span class="k">def</span> <span class="nf">get_reservation_context_details</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the reservation details for this execution</span>
+<span class="sd">    These details are automatically passed to the driver by CloudShell</span>
+
+<span class="sd">    :rtype: ReservationContextDetails</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res_dict</span> <span class="o">=</span> <span class="n">get_reservation_context_details_dict</span><span class="p">()</span>
+    <span class="n">env_params</span> <span class="o">=</span> <span class="n">EnvironmentParameters</span><span class="p">(</span><span class="n">get_global_inputs</span><span class="p">(),</span>
+                                       <span class="n">get_resource_requirement_inputs</span><span class="p">(),</span>
+                                       <span class="n">get_resource_additional_info_inputs</span><span class="p">())</span>
+    <span class="n">res_details</span> <span class="o">=</span> <span class="n">ReservationContextDetails</span><span class="p">(</span><span class="n">res_dict</span><span class="p">[</span><span class="s">&#39;environmentName&#39;</span><span class="p">],</span>
+                                            <span class="n">res_dict</span><span class="p">[</span><span class="s">&#39;domain&#39;</span><span class="p">],</span>
+                                            <span class="n">res_dict</span><span class="p">[</span><span class="s">&#39;description&#39;</span><span class="p">],</span>
+                                            <span class="n">env_params</span><span class="p">,</span>
+                                            <span class="n">res_dict</span><span class="p">[</span><span class="s">&#39;ownerUser&#39;</span><span class="p">],</span>
+                                            <span class="n">res_dict</span><span class="p">[</span><span class="s">&#39;ownerPass&#39;</span><span class="p">],</span>
+                                            <span class="n">res_dict</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">res_details</span>
+
+</div>
+<div class="viewcode-block" id="get_resource_context_details"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_resource_context_details">[docs]</a><span class="k">def</span> <span class="nf">get_resource_context_details</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the resource details dictionary for this execution</span>
+<span class="sd">    These details are automatically passed to the driver by CloudShell</span>
+
+<span class="sd">    :rtype: ResourceContextDetails</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res_dict</span> <span class="o">=</span> <span class="n">get_resource_context_details_dict</span><span class="p">()</span>
+    <span class="n">res_details</span> <span class="o">=</span> <span class="n">ResourceContextDetails</span><span class="p">(</span><span class="n">res_dict</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">],</span>
+                                         <span class="n">res_dict</span><span class="p">[</span><span class="s">&#39;address&#39;</span><span class="p">],</span>
+                                         <span class="n">res_dict</span><span class="p">[</span><span class="s">&#39;model&#39;</span><span class="p">],</span>
+                                         <span class="n">res_dict</span><span class="p">[</span><span class="s">&#39;family&#39;</span><span class="p">],</span>
+                                         <span class="n">res_dict</span><span class="p">[</span><span class="s">&#39;description&#39;</span><span class="p">],</span>
+                                         <span class="n">res_dict</span><span class="p">[</span><span class="s">&#39;fullname&#39;</span><span class="p">],</span>
+                                         <span class="n">res_dict</span><span class="p">[</span><span class="s">&#39;attributes&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">res_details</span>
+
+</div>
+<div class="viewcode-block" id="get_connectivity_context_details_dict"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_connectivity_context_details_dict">[docs]</a><span class="k">def</span> <span class="nf">get_connectivity_context_details_dict</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the connectivity details dictionary for this execution</span>
+<span class="sd">    :rtype: dict[str,str]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_get_quali_env_variable_object</span><span class="p">(</span><span class="s">&#39;qualiConnectivityContext&#39;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="get_connectivity_context_details"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_connectivity_context_details">[docs]</a><span class="k">def</span> <span class="nf">get_connectivity_context_details</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the connectivity details dictionary for this execution</span>
+<span class="sd">    :rtype: ConnectivityContextDetails</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">con_dict</span> <span class="o">=</span> <span class="n">get_connectivity_context_details_dict</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">ConnectivityContextDetails</span><span class="p">(</span><span class="n">con_dict</span><span class="p">[</span><span class="s">&#39;serverAddress&#39;</span><span class="p">],</span>
+                                      <span class="n">con_dict</span><span class="p">[</span><span class="s">&#39;tsAPIPort&#39;</span><span class="p">],</span>
+                                      <span class="n">con_dict</span><span class="p">[</span><span class="s">&#39;adminUser&#39;</span><span class="p">],</span>
+                                      <span class="n">con_dict</span><span class="p">[</span><span class="s">&#39;adminPass&#39;</span><span class="p">])</span>
+
+</div>
+<div class="viewcode-block" id="get_global_inputs"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_global_inputs">[docs]</a><span class="k">def</span> <span class="nf">get_global_inputs</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the global inputs dictionary for the current reservation</span>
+<span class="sd">    :rtype: dict[str,str]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reservationParams</span> <span class="o">=</span> <span class="n">get_reservation_context_details_dict</span><span class="p">()[</span><span class="s">&#39;parameters&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">_covert_to_python_dictionary</span><span class="p">(</span><span class="n">reservationParams</span><span class="p">[</span><span class="s">&#39;globalInputs&#39;</span><span class="p">])</span>
+
+</div>
+<div class="viewcode-block" id="get_resource_requirement_inputs"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_resource_requirement_inputs">[docs]</a><span class="k">def</span> <span class="nf">get_resource_requirement_inputs</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the resource requirements inputs dictionary</span>
+<span class="sd">    :rtype: ResourceInputs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reservationParams</span> <span class="o">=</span> <span class="n">get_reservation_context_details_dict</span><span class="p">()[</span><span class="s">&#39;parameters&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">_covert_to_resource_inputs_dictionary</span><span class="p">(</span>
+        <span class="n">reservationParams</span><span class="p">[</span><span class="s">&#39;resourceRequirements&#39;</span><span class="p">])</span>
+
+</div>
+<div class="viewcode-block" id="get_resource_additional_info_inputs"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.get_resource_additional_info_inputs">[docs]</a><span class="k">def</span> <span class="nf">get_resource_additional_info_inputs</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the resource additional inputs inputs dictionary</span>
+<span class="sd">    :rtype: ResourceInputs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reservationParams</span> <span class="o">=</span> <span class="n">get_reservation_context_details_dict</span><span class="p">()[</span><span class="s">&#39;parameters&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">_covert_to_resource_inputs_dictionary</span><span class="p">(</span>
+        <span class="n">reservationParams</span><span class="p">[</span><span class="s">&#39;resourceAdditionalInfo&#39;</span><span class="p">])</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_get_quali_env_variable_object</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="n">json_string</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="n">json_object</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_string</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">json_object</span>
+
+
+<span class="k">def</span> <span class="nf">_get_quali_env_variable_as_string</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">_get_quali_env_variable_object</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_covert_to_python_dictionary</span><span class="p">(</span><span class="n">parameters</span><span class="p">):</span>
+    <span class="n">inputsDictionary</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+        <span class="n">inputsDictionary</span><span class="p">[</span><span class="n">param</span><span class="p">[</span><span class="s">&#39;parameterName&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s">&#39;value&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">inputsDictionary</span>
+
+
+<span class="k">def</span> <span class="nf">_covert_to_resource_inputs_dictionary</span><span class="p">(</span><span class="n">parameters</span><span class="p">):</span>
+    <span class="n">inputsDictionary</span> <span class="o">=</span> <span class="n">ResourceInputs</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+        <span class="n">resource_name</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s">&#39;resourceName&#39;</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s">&#39;value&#39;</span><span class="p">]</span>
+        <span class="n">param_name</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s">&#39;parameterName&#39;</span><span class="p">]</span>
+        <span class="n">possible_values</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;possibleValues&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">ResourceInputData</span><span class="p">(</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span>
+                                 <span class="n">possible_values</span><span class="p">)</span>
+        <span class="n">inputsDictionary</span><span class="p">[</span><span class="n">resource_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+    <span class="k">return</span> <span class="n">inputsDictionary</span>
+
+
+<div class="viewcode-block" id="ConnectivityContextDetails"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ConnectivityContextDetails">[docs]</a><span class="k">class</span> <span class="nc">ConnectivityContextDetails</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server_address</span><span class="p">,</span> <span class="n">cloudshell_api_port</span><span class="p">,</span>
+                 <span class="n">admin_user</span><span class="p">,</span> <span class="n">admin_pass</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server_address</span> <span class="o">=</span> <span class="n">server_address</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cloudshell_api_port</span> <span class="o">=</span> <span class="n">cloudshell_api_port</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">admin_user</span> <span class="o">=</span> <span class="n">admin_user</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">admin_pass</span> <span class="o">=</span> <span class="n">admin_pass</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+
+</div>
+<div class="viewcode-block" id="ResourceContextDetails"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceContextDetails">[docs]</a><span class="k">class</span> <span class="nc">ResourceContextDetails</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span><span class="n">family</span><span class="p">,</span>
+                 <span class="n">description</span><span class="p">,</span> <span class="n">fullname</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">address</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">family</span> <span class="o">=</span> <span class="n">family</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fullname</span> <span class="o">=</span> <span class="n">fullname</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">attributes</span>
+        <span class="sd">&quot;&quot;&quot;:type : dict[str,str]&quot;&quot;&quot;</span>
+
+</div>
+<div class="viewcode-block" id="ReservationContextDetails"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ReservationContextDetails">[docs]</a><span class="k">class</span> <span class="nc">ReservationContextDetails</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment_name</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span>
+                 <span class="n">parameters</span><span class="p">,</span> <span class="n">owner_user</span><span class="p">,</span> <span class="n">owner_password</span><span class="p">,</span> <span class="n">reservation_id</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environment_name</span> <span class="o">=</span> <span class="n">environment_name</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span>
+        <span class="sd">&quot;&quot;&quot;:type : EnvironmentParameters&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">owner_user</span> <span class="o">=</span> <span class="n">owner_user</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">owner_password</span> <span class="o">=</span> <span class="n">owner_password</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">reservation_id</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+
+</div>
+<div class="viewcode-block" id="EnvironmentParameters"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.EnvironmentParameters">[docs]</a><span class="k">class</span> <span class="nc">EnvironmentParameters</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_inputs</span><span class="p">,</span> <span class="n">resource_requirements</span><span class="p">,</span>
+                 <span class="n">resource_additional_info</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_inputs</span> <span class="o">=</span> <span class="n">global_inputs</span>
+        <span class="sd">&quot;&quot;&quot;:type : dict[str,str]&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resource_requirements</span> <span class="o">=</span> <span class="n">resource_requirements</span>
+        <span class="sd">&quot;&quot;&quot;:type : ResourceInputs&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resource_additional_info</span> <span class="o">=</span> <span class="n">resource_additional_info</span>
+        <span class="sd">&quot;&quot;&quot;:type : ResourceInputs&quot;&quot;&quot;</span>
+
+</div>
+<div class="viewcode-block" id="ResourceInputData"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputData">[docs]</a><span class="k">class</span> <span class="nc">ResourceInputData</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_name</span><span class="p">,</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">possible_values</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resource_name</span> <span class="o">=</span> <span class="n">resource_name</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">possible_values</span> <span class="o">=</span> <span class="n">possible_values</span>
+        <span class="sd">&quot;&quot;&quot;:type : list[str]&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_name</span> <span class="o">=</span> <span class="n">param_name</span>
+        <span class="sd">&quot;&quot;&quot;:type : str&quot;&quot;&quot;</span>
+
+</div>
+<div class="viewcode-block" id="ResourceInputs"><a class="viewcode-back" href="../../../../cloudshell.helpers.scripts.html#cloudshell.helpers.scripts.cloudshell_scripts_helpers.ResourceInputs">[docs]</a><span class="k">class</span> <span class="nc">ResourceInputs</span><span class="p">:</span>
+    <span class="n">dictionary</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="sd">&quot;&quot;&quot;:type : dict[str, dict[str, ResourceInputData]]&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:rtype: dict[str, dict[str, ResourceInputData]]&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="p">[</span><span class="n">resource_name</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_name</span><span class="p">,</span> <span class="n">resource_input_data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">resource_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="p">[</span><span class="n">resource_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dictionary</span><span class="p">[</span><span class="n">resource_name</span><span class="p">][</span><span class="n">resource_input_data</span><span class="o">.</span><span class="n">param_name</span><span class="p">]</span>\
+            <span class="o">=</span> <span class="n">resource_input_data</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Quali.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'7.0.0.134',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
