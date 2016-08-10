@@ -1,0 +1,4 @@
+class <responcse_name>(<parent_type>):
+    def __init__(self, xml_object, find_prefix):
+<fields>
+
