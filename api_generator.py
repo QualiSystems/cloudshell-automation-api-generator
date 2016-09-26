@@ -145,12 +145,14 @@ class ResponseClassData:
 
 
 class CloudShellAPIGenerator:
-    def __init__(self, api_documentation_path, api_response_path, version, api_methods_result,
+    def __init__(self, api_documentation_path, api_response_path, api_methods_result, api_complex_classes, version,
                  output_folder, package_name, package_filename, package_root_folder,
                  is_debug):
         self.api_response_node = XMLWrapper.parse_xml_from_file(api_response_path)
         self.api_node = XMLWrapper.parse_xml_from_file(api_documentation_path)
         self.api_methods_result_node = XMLWrapper.parse_xml_from_file(api_methods_result)
+        self.api_complex_classes = XMLWrapper.parse_xml_from_file(api_complex_classes)
+        self.api_complex_classes_list = map(lambda x: XMLWrapper.get_node_attr(x, "name"), self.api_complex_classes)
 
         self.folder_prefix = output_folder + '/'
         self.resources = dict()
@@ -242,6 +244,10 @@ class CloudShellAPIGenerator:
             name = 'version.txt'
             data = open('template/python/package/version.txt').read()
             data = data.replace('<version>', self._package_version)
+            self.package_resources[name] = GeneratorResource(name, data)
+
+            name = 'MANIFEST.in'
+            data = open('template/python/package/MANIFEST.in').read()
             self.package_resources[name] = GeneratorResource(name, data)
 
             name = 'setup.py'
@@ -526,7 +532,10 @@ class CloudShellAPIGenerator:
     def _parse_api_request_class(self, class_node):
         api_request_class_template = self.api_request_class_template
 
-        class_name = XMLWrapper.get_node_name(class_node)
+        if isinstance(class_node, basestring):
+            class_name = class_node
+        else:
+            class_name = XMLWrapper.get_node_name(class_node)
 
         if class_name in ('string', 'int'):
             return
@@ -544,29 +553,73 @@ class CloudShellAPIGenerator:
         comments_str = ''
         comment_prefix = (' ' * 12) + ':param '
 
-        for child_parameters in class_node:
-            parameter_name = XMLWrapper.get_node_name(child_parameters)
-            arguments_str += parameter_name + ', '
-            arguments_in_method_str += parameter_name + '=' + parameter_name + ', '
+        if class_name in self.api_complex_classes_list:
+            xs_prefix = XMLWrapper.get_node_prefix(self.api_complex_classes, 'xs')
 
-            if len(child_parameters._children) > 0:
-                self._parse_api_request_class(child_parameters)
+            for sequence in XMLWrapper.get_child_node_by_attr(self.api_complex_classes,
+                                                              xs_prefix + "complexType",
+                                                              "name",
+                                                              class_name):
+                elements = XMLWrapper.get_all_child_node(sequence, "element", xs_prefix)
+                for element in elements:
+                    parameter_name = element.get("name")
 
-            parameter_type = 'str'
-            for inner_param_node in child_parameters:
-                parameter_type = 'list[' + XMLWrapper.get_node_name(inner_param_node) + ']'
-                self._parse_api_request_class(inner_param_node)
+                    if arguments_str:
+                        arguments_str += ", " + parameter_name
+                    else:
+                        arguments_str = parameter_name
 
-            comments_str += comment_prefix + parameter_type + ' ' + parameter_name + ': constructor parameter\n'
+                    if arguments_in_method_str:
+                        arguments_in_method_str += ", {0}={0}".format(parameter_name)
+                    else:
+                        arguments_in_method_str = "{0}={0}".format(parameter_name)
 
-        if len(arguments_str) >= 2:
-            arguments_str = arguments_str[:-2]
+                    element_type = element.get("type").replace("xs:", "")
+                    if element_type.startswith("ArrayOf"):
+                        sub_element = XMLWrapper.get_child_node_by_attr(self.api_complex_classes,
+                                                                        xs_prefix + "complexType",
+                                                                        "name",
+                                                                        element_type)[0]
 
-        if len(arguments_in_method_str) >= 2:
-            arguments_in_method_str = arguments_in_method_str[:-2]
+                        sub_element_type = XMLWrapper.get_all_child_node(sub_element,
+                                                                         "element",
+                                                                         xs_prefix)[0].get("type")
 
-        if len(comments_str) >= 1:
-            comments_str = comments_str[:-1]
+                        parameter_type = "list[{}]".format(sub_element_type)
+                        self._parse_api_request_class(sub_element_type)
+                    else:
+                        self._parse_api_request_class(element_type)
+                        parameter_type = element_type.replace("string", "str")
+
+                    comments_str += comment_prefix + parameter_type + ' ' + parameter_name + ': constructor parameter\n'
+        else:
+            for child_parameters in class_node:
+                parameter_name = XMLWrapper.get_node_name(child_parameters)
+                arguments_str += parameter_name + ', '
+                arguments_in_method_str += parameter_name + '=' + parameter_name + ', '
+
+                if len(child_parameters._children) > 0:
+                    self._parse_api_request_class(child_parameters)
+
+                parameter_type = 'str'
+                for inner_param_node in child_parameters:
+                    self._parse_api_request_class(inner_param_node)
+                    if parameter_name in self._inserted_request_classes:
+                        parameter_type = parameter_name
+                    else:
+                        parameter_type = 'list[' + parameter_name + ']'
+                    self._parse_api_request_class(inner_param_node)
+
+                comments_str += comment_prefix + parameter_type + ' ' + parameter_name + ': constructor parameter\n'
+
+            if len(arguments_str) >= 2:
+                arguments_str = arguments_str[:-2]
+
+            if len(arguments_in_method_str) >= 2:
+                arguments_in_method_str = arguments_in_method_str[:-2]
+
+            if len(comments_str) >= 1:
+                comments_str = comments_str[:-1]
 
         api_request_class_template = api_request_class_template.replace('<args>', arguments_str)
         api_request_class_template = api_request_class_template.replace('<args_in_method>', arguments_in_method_str)
@@ -980,13 +1033,15 @@ if __name__ == '__main__':
     parser = ArgumentParser()
 
     parser.add_argument("--input_xml", action="store", dest="api_documentation_path",
-                        default="APIDocumentation_v6.xml", help="API requests file specification")
+                        default="APIDocumentation.xml", help="API requests file specification")
     parser.add_argument("--input_xsd", action="store", dest="api_response_path",
-                        default="ApiCommandResult_v6.xsd", help="API response file specification")
+                        default="ApiCommandResult.xsd", help="API response file specification")
     parser.add_argument("--method_result", action="store", dest="api_methods_result",
                         default="ApiMethodResults.xml", help="API requests file specification")
+    parser.add_argument("--complex_classes", action="store", dest="api_complex_classes",
+                        default="ApiArgumentObjects.xsd", help="API complex classes file specification")
     parser.add_argument("--version", action="store", dest="version",
-                        default="6.4.0", help="API requests file specification")
+                        default="7.0.3", help="API requests file specification")
     parser.add_argument("--output_dir", action="store", dest="output_dir",
                         help="API requests file specification")
     parser.add_argument("--package_name", action="store", dest="package_name",
@@ -1001,7 +1056,7 @@ if __name__ == '__main__':
     if not args.output_dir:
         setattr(args, "output_dir", "generated_v{}".format(args.version))
 
-    api_generator = CloudShellAPIGenerator(args.api_documentation_path, args.api_response_path, args.version,
-                                           args.api_methods_result, args.output_dir, args.package_name,
+    api_generator = CloudShellAPIGenerator(args.api_documentation_path, args.api_response_path, args.api_methods_result,
+                                           args.api_complex_classes, args.version, args.output_dir, args.package_name,
                                            args.package_filename, args.package_root_dir, args.is_debug)
     api_generator.generate()

@@ -82,4 +82,5 @@
     <ExecuteDeployAppCommand>AppDeploymentyInfo</ExecuteDeployAppCommand>
     <ExecuteInstallAppCommand>CommandExecutionCompletedResultInfo</ExecuteInstallAppCommand>
     <ExecuteDeployAppCommandBulk>BulkAppDeploymentyInfo</ExecuteDeployAppCommandBulk>
+    <GetAppsDetailsInReservation>ReservationAppsResponseInfo</GetAppsDetailsInReservation>
 </Methods>
