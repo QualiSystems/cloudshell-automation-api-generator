@@ -3,7 +3,7 @@
   <TOC>
     <Folder Name="Configuration">
       <Command Name="ExportFamiliesAndModels"  Lang="all"/>
-      <Command Name="DecryptPassword"  Lang="tcl;py"/>
+      <Command Name="DecryptPassword"  Lang="tcl;py;xmlrpc"/>
     </Folder>
     <Folder Name="User management">
       <Folder Name="Login">
@@ -39,7 +39,7 @@
         <Command Name="AddTopologiesToDomain"  Lang="all"/>
         <Command Name="DeleteDomain"  Lang="all"/>
         <Command Name="GetDomainDetails"  Lang="all"/>
-        <Command Name="RemoveGroupFromDomain"  Lang="all"/>
+        <Command Name="RemoveGroupsFromDomain"  Lang="all"/>
         <Command Name="RemoveResourcesFromDomain"  Lang="all"/>
         <Command Name="RemoveTopologiesFromDomain"  Lang="all"/>
         <Command Name="UpdateDomainTopologiesFolder"  Lang="all"/>
@@ -109,6 +109,7 @@
         <Command Name="RemoveAppFromReservation" Lang="all"/>
         <Command Name="GetAppsDetailsInReservation" Lang="all"/>
         <Command Name="EditAppsInReservation" Lang="all"/>
+		<Command Name="DeployAppToCloudProvider" Lang="all"/>
       </Folder>
       <Folder Name="Scheduling">
         <Command Name="AddPermittedUsersToReservation"  Lang="all"/>
@@ -133,7 +134,7 @@
       <Folder Name="Resources">
         <Command Name="AddResourcesToReservation"  Lang="all"/>
         <Command Name="GetResourceMappings"  Lang="all"/>
-        <Command Name="ReleaseResources"  Lang="all"/>
+        <Command Name="ReleaseResourcesFromReservation"  Lang="all"/>
         <Command Name="RemoveResourcesFromReservation"  Lang="all"/>
         <Command Name="SetResourceSharedState"  Lang="all"/>
         <Command Name="GetResourceAvailability"  Lang="all"/>
@@ -159,10 +160,8 @@
       </Folder>
       <Folder Name="Topologies">
         <Command Name="ActivateTopology"  Lang="all"/>
-        <Command Name="AddTopologyToReservation"  Lang="all"/>
         <Command Name="GetActiveTopologyNames"  Lang="all"/>
         <Command Name="ReleaseTopologyResources"  Lang="all"/>
-        <Command Name="ReloadTopology"  Lang="all"/>
         <Command Name="SaveReservationAsTopology"  Lang="all"/>
         <Command Name="GetReservationInputs"  Lang="all"/>
         <Command Name="UpdateReservationGlobalInputs"  Lang="all"/>
@@ -198,6 +197,8 @@
         <Command Name="DeployAppToCloudProvider"  Lang="py;xmlrpc"/>
         <Command Name="DeployAppToCloudProviderBulk"  Lang="py;xmlrpc"/>
         <Command Name="InstallApp"  Lang="py;xmlrpc"/>
+        <Command Name="PrepareSandboxConnectivity" Lang="all"/>
+        <Command Name="CleanupSandboxConnectivity" Lang="all"/>
       </Folder>
       <Folder Name="Commands (Deprecated)">
         <Command Name="EnqueueResourceCommand"  Lang="all"/>
@@ -207,7 +208,7 @@
         <Command Name="EnqueueTopologyCommand"  Lang="all"/>
         <Command Name="ExecuteTopologyCommand"  Lang="all"/>
         <Command Name="GetTopologyCommands"  Lang="all"/>
-      </Folder>      
+      </Folder>
     </Folder>
     <Folder Name="Inventory operations">
       <Folder Name="Attributes">
@@ -239,7 +240,7 @@
         <Command Name="SetBaudRate"  Lang="all"/>
         <Command Name="SetConsoleForXModem"  Lang="all"/>
       </Folder>
-      <Folder Name="Pool">
+      <Folder Name="Pool management (internal only)">
         <Command Name="CheckoutFromPool" Lang="all"/>
         <Command Name="ReleaseFromPool" Lang="all"/>
       </Folder>
@@ -1374,130 +1375,6 @@
     <Exceptions Lang="library" />
     <Exceptions Lang="xmlrpc" />
   </Command>
-  <Command Name="AddTopologyToReservation" Title="Reserve a topology." Lang="all" Category="Reservation operations\Topologies">
-    <Description>Reserves the specified topology.</Description>
-    <Parameters>
-      <Parameter Name="reservationId" alias="Reservation ID" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
-        <Description>Specify the string that represents the reservation’s unique identifier.</Description>
-      </Parameter>
-      <Parameter Name="topologyFullPath" alias="Topology Full Path" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
-        <Description>Specify the full topology name. Include the full path from the root to the topology, separated by slashes. For example: FolderName/Topologies/TopologyName.</Description>
-      </Parameter>
-      <Parameter Name="globalInputs" alias="Global Inputs" Type="string[,]" Default="" Lang="all" MandatoryValue="false" Direction="in">
-        <Description>Global inputs associated with the specified topology. For example: {['Input Name', 'Value';]}.</Description>
-      </Parameter>
-      <Parameter Name="requirementsInputs" alias="Requirements Inputs" Type="string[,]" Default="" Lang="all" MandatoryValue="false" Direction="in">
-        <Description>Requirements inputs associated with the specified topology. For example: {['Resource Name', 'Input Name', 'Value', 'AttributeType';]}, AttributeType can be one of the following: Attributes/Models/Quantity. </Description>
-      </Parameter>
-      <Parameter Name="additionalInfoInputs" alias="Additional Info Inputs" Type="string[,]" Default="" Lang="all" MandatoryValue="false" Direction="in">
-        <Description>Additional info inputs associated with the specified topology. For example: {['Resource Name', 'Input Name', 'Value';]}. </Description>
-      </Parameter>
-      <Parameter Name="conflicts" alias="Resource Conflicts" Type="string[,]" Default="" Lang="cs;lib" MandatoryValue="false" Direction="out">
-        <Description>Resource conflicts and their associated values for the specified reservation.</Description>
-      </Parameter>
-      <Parameter Name="resultXml" alias="Result XML" Type="string" Default="" Lang="all" MandatoryValue="false" Direction="out">
-        <Description>Specify the variable for the XML output.</Description>
-        <MoreDescription Lang="tcl">If a variable is not provided, the results will be sent to stdout.</MoreDescription>
-      </Parameter>
-    </Parameters>
-    <Syntax Lang="tcl">::TestShellAPI::AddTopologyToReservation reservationId topologyFullPath globalInputs requirementsInputs additionalInfoInputs ?resultXml?</Syntax>
-    <Syntax Lang="cSharp">AddTopologyToReservation(reservationId, topologyFullPath, globalInputs, requirementsInputs, additionalInfoInputs, out conflicts, out resultXml);</Syntax>
-    <Syntax Lang="library" src="" />
-    <Syntax Lang="xmlrpc">
-      &lt;AddTopologyToReservation&gt;
-      &lt;reservationId&gt;{reservationId}&lt;/reservationId&gt;
-      &lt;topologyFullPath&gt;{topologyFullPath}&lt;/topologyFullPath&gt;
-      &lt;globalInputs&gt;
-      &lt;UpdateTopologyGlobalInputsRequest&gt;
-      &lt;ParamName&gt;{ParamName}&lt;/ParamName&gt;
-      &lt;Value&gt;{Value}&lt;/Value&gt;
-      &lt;/UpdateTopologyGlobalInputsRequest&gt;
-      &lt;/globalInputs&gt;
-      &lt;requirementsInputs&gt;
-      &lt;UpdateTopologyRequirementsInputsRequest&gt;
-      &lt;ResourceName&gt;{ResourceName}&lt;/ResourceName&gt;
-      &lt;ParamName&gt;{ParamName}&lt;/ParamName&gt;
-      &lt;Value&gt;{Value}&lt;/Value&gt;
-      &lt;Type&gt;{Type}&lt;/Type&gt;
-      &lt;/UpdateTopologyRequirementsInputsRequest&gt;
-      &lt;/requirementsInputs&gt;
-      &lt;additionalInfoInputs&gt;
-      &lt;UpdateTopologyAdditionalInfoInputsRequest&gt;
-      &lt;ResourceName&gt;{ResourceName}&lt;/ResourceName&gt;
-      &lt;ParamName&gt;{ParamName}&lt;/ParamName&gt;
-      &lt;Value&gt;{Value}&lt;/Value&gt;
-      &lt;/UpdateTopologyAdditionalInfoInputsRequest&gt;
-      &lt;/additionalInfoInputs&gt;
-      &lt;/AddTopologyToReservation&gt;
-    </Syntax>
-    <ExampleCode Lang="tcl">
-      <Input>::TestShellAPI::AddTopologyToReservation "af626b88-458b-4e7a-9054-c03d8cffa260" "Temp Automation Resources/TP1" {{"GlobalInputName_0" "GlobalInputValue_0"} {"GlobalInputName_1" "GlobalInputValue_1"}} {{"ResourceName_0" "RequiredInputName_0" "RequiredInputValue_0" "RequiredInputType_0"}} {{"ResourceName_0" "AdditionalInfoName_0" "AdditionalInfoValue_0"}} resultXml</Input>
-      <Output Name="resultXml">
-        &lt;ResponseInfo&gt;
-        &lt;Conflicts/&gt;
-        &lt;/ResponseInfo&gt;
-      </Output>
-    </ExampleCode>
-    <ExampleCode Lang="cSharp">
-      <Input>
-        TestShellAPI.TestShellAPI testShellAPI = new TestShellAPI.TestShellAPI();
-        string reservationId = "af626b88-458b-4e7a-9054-c03d8cffa260";
-        string[,] globalInputs = {{"input1", "value1"}, {"input2", "value2"}};
-        string[,] requirementsInputs = {{"resource", "attribute", "value", "Attributes"}};
-        string[,] additionalInfoInputs = {{"resource", "attribute", "value"}};
-        string[,] conflicts;
-        testShellAPI.AddTopologyToReservation(reservationId,"Temp Automation Resources/TP1", globalInputs, requirementsInputs, additionalInfoInputs, out conflicts,out resultXml);
-      </Input>
-      <Output Name="conflicts" />
-      <Output Name="resultXml">
-        &lt;ResponseInfo&gt;
-        &lt;Conflicts/&gt;
-        &lt;/ResponseInfo&gt;
-      </Output>
-    </ExampleCode>
-    <ExampleCode Lang="library">
-      <Input src="" />
-      <Output Name="conflicts" src="" />
-      <Output Name="resultXml" src="" />
-    </ExampleCode>
-    <ExampleCode Lang="xmlrpc">
-      <Input>
-        &lt;AddTopologyToReservation&gt;
-        &lt;reservationId&gt;af626b88-458b-4e7a-9054-c03d8cffa260&lt;/reservationId&gt;
-        &lt;topologyFullPath&gt;Temp Automation Resources/TP1&lt;/topologyFullPath&gt;
-        &lt;globalInputs&gt;
-        &lt;UpdateTopologyGlobalInputsRequest&gt;
-        &lt;ParamName&gt;Some global&lt;/ParamName&gt;
-        &lt;Value&gt;some value&lt;/Value&gt;
-        &lt;/UpdateTopologyGlobalInputsRequest&gt;
-        &lt;/globalInputs&gt;
-        &lt;requirementsInputs&gt;
-        &lt;UpdateTopologyRequirementsInputsRequest&gt;
-        &lt;ResourceName&gt;Some resource&lt;/ResourceName&gt;
-        &lt;ParamName&gt;Model&lt;/ParamName&gt;
-        &lt;Value&gt;Some resource model&lt;/Value&gt;
-        &lt;Type&gt;Models&lt;/Type&gt;
-        &lt;/UpdateTopologyRequirementsInputsRequest&gt;
-        &lt;/requirementsInputs&gt;
-        &lt;additionalInfoInputs&gt;
-        &lt;UpdateTopologyAdditionalInfoInputsRequest&gt;
-        &lt;ResourceName&gt;Some resource&lt;/ResourceName&gt;
-        &lt;ParamName&gt;Speed&lt;/ParamName&gt;
-        &lt;Value&gt;10 Mbps&lt;/Value&gt;
-        &lt;/UpdateTopologyAdditionalInfoInputsRequest&gt;
-        &lt;/additionalInfoInputs&gt;
-        &lt;/AddTopologyToReservation&gt;
-      </Input>
-      <Output Name="resultXml">
-        &lt;ResponseInfo&gt;
-        &lt;Conflicts/&gt;
-        &lt;/ResponseInfo&gt;
-      </Output>
-    </ExampleCode>
-    <Exceptions Lang="cSharp" />
-    <Exceptions Lang="library" />
-    <Exceptions Lang="xmlrpc" />
-  </Command>
   <Command Name="AddUsersToGroup" Title="Add users to a group." Lang="all" Category="User management\Groups">
     <Description>Adds a list of one or more users to the specified group.</Description>
     <Parameters>
@@ -1694,23 +1571,23 @@
       <Output Name="resultXml" src="" />
     </ExampleCode>
   </Command>
-  <Command Name="AddAppToReservation" Title="Add app resource to existing reservation." Lang="all" Category="Reservation operations\Apps">
-    <Description>Add app resource to existing reservation.</Description>
+  <Command Name="AddAppToReservation" Title="Add an App resource to an existing reservation." Lang="all" Category="Reservation operations\Apps">
+    <Description>Add an App resource to an existing reservation.</Description>
     <Parameters>
       <Parameter Name="reservationId" alias="Reservation ID" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
         <Description>Specify the string that represents the reservation’s unique identifier.</Description>
       </Parameter>
       <Parameter Name="appName" alias="App Template Name" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
-        <Description>Specify the app template name.</Description>
+        <Description>Specify the App template's name.</Description>
       </Parameter>
       <Parameter Name="positionX" alias="Position X" Type="double" Default="100" Lang="all" MandatoryValue="false" Direction="in">
-        <Description>Specify the x coordinate of the app's top left corner.</Description>
+        <Description>Specify the x coordinate of the App's top left corner.</Description>
       </Parameter>
       <Parameter Name="positionY" alias="Position Y" Type="double" Default="100" Lang="all" MandatoryValue="false" Direction="in">
-        <Description>Specify the y coordinate of the app's top left corner.</Description>
+        <Description>Specify the y coordinate of the App's top left corner.</Description>
       </Parameter>
       <Parameter Name="createdAppName" alias="Created App Name" Type="string" Default="" Lang="cs;lib" MandatoryValue="true" Direction="out">
-        <Description>The name of the new created app.</Description>
+        <Description>The name of the App to be created.</Description>
       </Parameter>
       <Parameter Name="resultXml" alias="Result XML" Type="string" Default="" Lang="tcl" MandatoryValue="false" Direction="out">
         <Description>Specify the variable for the XML output.</Description>
@@ -3644,7 +3521,7 @@
     <Exceptions Lang="library" />
     <Exceptions Lang="xmlrpc" />
   </Command>
-  <Command Name="DecryptPassword" Title="Decrypt a password." Lang="tcl;py" Category="Configuration">
+  <Command Name="DecryptPassword" Title="Decrypt a password." Lang="tcl;py;xmlrpc" Category="Configuration">
     <Description>Decrypt a password.</Description>
     <Parameters>
       <Parameter Name="encryptedString" alias="Encrypted string" Type="string" Default="" Lang="tcl;py;xmlrpc" MandatoryValue="true" Direction="in">
@@ -4470,7 +4347,7 @@
     <Exceptions Lang="library" />
     <Exceptions Lang="xmlrpc" />
   </Command>
-  <Command Name="DeployAppToCloudProvider" Title="" Lang="tcl;py;xmlrpc" Category="Reservation operations\Commands">
+  <Command Name="DeployAppToCloudProvider" Title="Deploy app to cloud provider" Lang="tcl;py;xmlrpc" Category="Reservation operations\Commands">
     <Description>Executes deploy command for the specified app driver.</Description>
     <Parameters>
       <Parameter Name="reservationId" alias="Reservation ID" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
@@ -4590,13 +4467,13 @@
     <Exceptions Lang="xmlrpc" />
   </Command>
   <Command Name="EditAppsInReservation" Title="" Lang="all" Category="Reservation operations\Commands">
-    <Description>Edit apps in reservation</Description>
+    <Description>Edit Apps in a reservation</Description>
     <Parameters>
       <Parameter Name="reservationId" alias="Reservation ID" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
         <Description>Specify the string that represents the reservation’s unique identifier.</Description>
       </Parameter>
       <Parameter Name="editAppsRequests" alias="Edit App Request" Type="string[,]" Default="" Lang="all" MandatoryValue="true" Direction="in">
-        <Description>edit app request</Description>
+        <Description>Changes to implement in the App.</Description>
       </Parameter>
       <Parameter Name="resultXml" alias="Result XML" Type="string" Default="" Lang="all" MandatoryValue="false" Direction="out">
         <Description>Specify the variable for the XML output.</Description>
@@ -4617,7 +4494,7 @@
               &lt;NameValuePair&gt;
                 &lt;Name&gt;&lt;/Name&gt;
                 &lt;Value&gt;&lt;/Value&gt;
-              &lt;/NameValuePair&gt;    
+              &lt;/NameValuePair&gt;
             &lt;/Attributes&gt;
             &lt;Driver&gt;&lt;/Driver&gt;
           &lt;/AppDetails&gt;
@@ -4744,6 +4621,108 @@
     </ExampleCode>
     <Exceptions Lang="xmlrpc" />
   </Command>
+
+  <Command Name="PrepareSandboxConnectivity" Title="" Lang="all" Category="Reservation operations\Commands">
+    <Description>Prepare Sandbox Connectivity</Description>
+    <Parameters>
+      <Parameter Name="reservationId" alias="Reservation ID" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
+        <Description>Specify the string that represents the reservation’s unique identifier.</Description>
+      </Parameter>
+      <Parameter Name="resultXml" alias="Result XML" Type="string" Default="" Lang="all" MandatoryValue="false" Direction="out">
+        <Description>Specify the variable for the XML output.</Description>
+        <MoreDescription Lang="tcl">If a variable is not provided, the results will be sent to stdout.</MoreDescription>
+      </Parameter>
+    </Parameters>
+    <Syntax Lang="xmlrpc">
+      &lt;PrepareSandboxConnectivity&gt;
+      &lt;reservationId&gt;{reservationId}&lt;/reservationId&gt;
+      &lt;/PrepareSandboxConnectivity&gt;
+    </Syntax>
+    <Syntax Lang="tcl">::TestShellAPI::PrepareSandboxConnectivity reservationId ?resultXml?</Syntax>
+    <Syntax Lang="cSharp">PrepareSandboxConnectivity(reservationId, out resultXml);</Syntax>
+    <Syntax Lang="library" src="" />
+    <ExampleCode Lang="tcl">
+      <Input>::TestShellAPI::PrepareSandboxConnectivity $reservationId resultXml</Input>
+      <Output Name="resultXml">&lt;ResponseInfo Output="success"/&gt;</Output>
+    </ExampleCode>
+    <ExampleCode Lang="cSharp">
+      <Input>
+        TestShellAPI testShellAPI = new TestShellAPI();
+        string output;
+        string resultXml;
+        string reservationId = "af626b88-458b-4e7a-9054-c03d8cffa260";
+        testShellAPI.PrepareSandboxConnectivity(reservationId, out resultXml);
+      </Input>
+      <Output Name="output" />
+      <Output Name="resultXml">&lt;ResponseInfo Output="success"/&gt;</Output>
+    </ExampleCode>
+    <ExampleCode Lang="library">
+      <Input src="" />
+      <Output Name="output" src="" />
+      <Output Name="resultXml" src="" />
+    </ExampleCode>
+    <ExampleCode Lang="xmlrpc">
+      <Input>
+        &lt;PrepareSandboxConnectivity&gt;
+        &lt;reservationId&gt;{reservationId}&lt;/reservationId&gt;
+        &lt;/PrepareSandboxConnectivity&gt;
+      </Input>
+      <Output Name="resultXml">&lt;ResponseInfo Output="success"/&gt;</Output>
+    </ExampleCode>
+    <Exceptions Lang="xmlrpc" />
+  </Command>
+
+
+  <Command Name="CleanupSandboxConnectivity" Title="" Lang="all" Category="Reservation operations\Commands">
+    <Description>Cleanup Sandbox Connectivity</Description>
+    <Parameters>
+      <Parameter Name="reservationId" alias="Reservation ID" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
+        <Description>Specify the string that represents the reservation’s unique identifier.</Description>
+      </Parameter>
+      <Parameter Name="resultXml" alias="Result XML" Type="string" Default="" Lang="all" MandatoryValue="false" Direction="out">
+        <Description>Specify the variable for the XML output.</Description>
+        <MoreDescription Lang="tcl">If a variable is not provided, the results will be sent to stdout.</MoreDescription>
+      </Parameter>
+    </Parameters>
+    <Syntax Lang="xmlrpc">
+      &lt;CleanupSandboxConnectivity&gt;
+      &lt;reservationId&gt;{reservationId}&lt;/reservationId&gt;
+      &lt;/CleanupSandboxConnectivity&gt;
+    </Syntax>
+    <Syntax Lang="tcl">::TestShellAPI::CleanupSandboxConnectivity reservationId ?resultXml?</Syntax>
+    <Syntax Lang="cSharp">CleanupSandboxConnectivity(reservationId, out resultXml);</Syntax>
+    <Syntax Lang="library" src="" />
+    <ExampleCode Lang="tcl">
+      <Input>::TestShellAPI::CleanupSandboxConnectivity $reservationId resultXml</Input>
+      <Output Name="resultXml">&lt;ResponseInfo Output="success"/&gt;</Output>
+    </ExampleCode>
+    <ExampleCode Lang="cSharp">
+      <Input>
+        TestShellAPI testShellAPI = new TestShellAPI();
+        string output;
+        string resultXml;
+        string reservationId = "af626b88-458b-4e7a-9054-c03d8cffa260";
+        testShellAPI.CleanupSandboxConnectivity(reservationId, out resultXml);
+      </Input>
+      <Output Name="output" />
+      <Output Name="resultXml">&lt;ResponseInfo Output="success"/&gt;</Output>
+    </ExampleCode>
+    <ExampleCode Lang="library">
+      <Input src="" />
+      <Output Name="output" src="" />
+      <Output Name="resultXml" src="" />
+    </ExampleCode>
+    <ExampleCode Lang="xmlrpc">
+      <Input>
+        &lt;CleanupSandboxConnectivity&gt;
+        &lt;reservationId&gt;{reservationId}&lt;/reservationId&gt;
+        &lt;/CleanupSandboxConnectivity&gt;
+      </Input>
+      <Output Name="resultXml">&lt;ResponseInfo Output="success"/&gt;</Output>
+    </ExampleCode>
+    <Exceptions Lang="xmlrpc" />
+  </Command>
+
   <Command Name="InstallApp" Title="" Lang="tcl;py;xmlrpc" Category="Reservation operations\Commands">
     <Description>Executes install command for the specified app driver or script.</Description>
     <Parameters>
@@ -4808,7 +4787,7 @@
     <Exceptions Lang="xmlrpc" />
   </Command>
 
-  <Command Name="CheckoutFromPool" Title="" Lang="tcl;py;xmlrpc" Category="Inventory operations\Pool">
+  <Command Name="CheckoutFromPool" Title="Checkout from pool" Lang="tcl;py;xmlrpc" Category="Inventory operations\Pool">
     <Description>Request to checkout an item from a pool.</Description>
     <Parameters>
       <Parameter Name="selectionCriteriaJson" alias="Selection Criteria Json" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
@@ -4819,7 +4798,7 @@
         <MoreDescription Lang="tcl">If a variable is not provided, the results will be sent to stdout.</MoreDescription>
       </Parameter>
     </Parameters>
-    
+
     <Syntax Lang="xmlrpc">
       &lt;CheckoutFromPool&gt;
       &lt;selectionCriteriaJson&gt;{selectionCriteriaJson}&lt;/selectionCriteriaJson&gt;
@@ -4829,7 +4808,7 @@
     <ExampleCode Lang="xmlrpc">
       <Input>
         &lt;CheckoutFromPool&gt;
-        &lt;selectionCriteriaJson&gt;jsonRequest&lt;/selectionCriteriaJson&gt;        
+        &lt;selectionCriteriaJson&gt;jsonRequest&lt;/selectionCriteriaJson&gt;
         &lt;/CheckoutFromPool&gt;
       </Input>
       <Output Name="resultXml" />
@@ -4837,7 +4816,7 @@
     <Exceptions Lang="xmlrpc" />
   </Command>
 
-  <Command Name="ReleaseFromPool" Title="" Lang="tcl;py;xmlrpc" Category="Inventory operations\Pool">
+  <Command Name="ReleaseFromPool" Title="Release from pool" Lang="tcl;py;xmlrpc" Category="Inventory operations\Pool">
     <Description>Request to release an item from a pool.</Description>
     <Parameters>
       <Parameter Name="values" alias="Values" Type="string[]" Default="" Lang="all" MandatoryValue="true" Direction="in">
@@ -9710,7 +9689,7 @@
     <Exceptions Lang="cSharp" />
     <Exceptions Lang="library" />
     <Exceptions Lang="xmlrpc" />
-  </Command>  
+  </Command>
   <Command Name="IncludeResource" Title="Include a resource." Lang="all" Category="Inventory operations\Including &amp; excluding">
     <Description>Includes a specified resource.</Description>
     <Parameters>
@@ -10652,76 +10631,6 @@
     <Exceptions Lang="library" />
     <Exceptions Lang="xmlrpc" />
   </Command>
-  <Command Name="ReloadTopology" Title="Reload a topology." Lang="all" Category="Reservation operations\Topologies">
-    <Description>Removes and adds the specified topology back to the reservation, after re-evaluating it and all its resources.</Description>
-    <Parameters>
-      <Parameter Name="reservationId" alias="Reservation ID" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
-        <Description>Specify the string that represents the reservation’s unique identifier.</Description>
-      </Parameter>
-      <Parameter Name="topologyFullPath" alias="Topology Full Path" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
-        <Description>Specify the full topology name. Include the full path from the root to the topology, separated by slashes. For example: FolderName/Topologies/TopologyName.</Description>
-      </Parameter>
-      <Parameter Name="conflicts" alias="Resource Conflicts" Type="string[,]" Default="" Lang="cs;lib" MandatoryValue="false" Direction="out">
-        <Description>Resource conflicts and their associated values for the specified reservation.</Description>
-      </Parameter>
-      <Parameter Name="resultXml" alias="Result XML" Type="string" Default="" Lang="all" MandatoryValue="false" Direction="out">
-        <Description>Specify the variable for the XML output.</Description>
-        <MoreDescription Lang="tcl">If a variable is not provided, the results will be sent to stdout.</MoreDescription>
-      </Parameter>
-    </Parameters>
-    <Syntax Lang="tcl">::TestShellAPI::ReloadTopology reservationId topologyFullPath ?resultXml?</Syntax>
-    <Syntax Lang="cSharp">ReloadTopology(reservationId,topologyFullPath,out conflicts,out resultXml);</Syntax>
-    <Syntax Lang="library" src="" />
-    <Syntax Lang="xmlrpc">
-      &lt;ReloadTopology&gt;
-      &lt;reservationId&gt;{reservationId}&lt;/reservationId&gt;
-      &lt;topologyFullPath&gt;{topologyFullPath}&lt;/topologyFullPath&gt;
-      &lt;/ReloadTopology&gt;
-    </Syntax>
-    <ExampleCode Lang="tcl">
-      <Input>::TestShellAPI::ReloadTopology $reservationId "Temp Automation Resources/TP1" resultXml</Input>
-      <Output Name="resultXml">
-        &lt;ResponseInfo&gt;
-        &lt;Conflicts/&gt;
-        &lt;/ResponseInfo&gt;
-      </Output>
-    </ExampleCode>
-    <ExampleCode Lang="cSharp">
-      <Input>
-        TestShellAPI.TestShellAPI testShellAPI = new TestShellAPI.TestShellAPI();
-        string reservationId = "af626b88-458b-4e7a-9054-c03d8cffa260";
-        string[,] conflicts;
-        testShellAPI.ReloadTopology(reservationId,"Temp Automation Resources/TP1",out conflicts,out resultXml);
-      </Input>
-      <Output Name="conflicts" />
-      <Output Name="resultXml">
-        &lt;ResponseInfo&gt;
-        &lt;Conflicts/&gt;
-        &lt;/ResponseInfo&gt;
-      </Output>
-    </ExampleCode>
-    <ExampleCode Lang="library">
-      <Input src="" />
-      <Output Name="conflicts" src="" />
-      <Output Name="resultXml" src="" />
-    </ExampleCode>
-    <ExampleCode Lang="xmlrpc">
-      <Input>
-        &lt;ReloadTopology&gt;
-        &lt;reservationId&gt;af626b88-458b-4e7a-9054-c03d8cffa260&lt;/reservationId&gt;
-        &lt;topologyFullPath&gt;Temp Automation Resources/TP1&lt;/topologyFullPath&gt;
-        &lt;/ReloadTopology&gt;
-      </Input>
-      <Output Name="resultXml">
-        &lt;ResponseInfo&gt;
-        &lt;Conflicts/&gt;
-        &lt;/ResponseInfo&gt;
-      </Output>
-    </ExampleCode>
-    <Exceptions Lang="cSharp" />
-    <Exceptions Lang="library" />
-    <Exceptions Lang="xmlrpc" />
-  </Command>
   <Command Name="RemoveGroupsFromDomain" Title="Remove groups from a domain." Lang="all" Category="User management\Domains">
     <Description>Remove groups from a domain.</Description>
     <Parameters>
@@ -11457,13 +11366,13 @@
     <Exceptions Lang="xmlrpc" />
   </Command>
   <Command Name="RemoveAppFromReservation" Title="Remove app resource from existing reservation." Lang="all" Category="Reservation operations\Apps">
-    <Description>Remove app resource to existing reservation.</Description>
+    <Description>Remove a deployed App resource from existing reservation.</Description>
     <Parameters>
       <Parameter Name="reservationId" alias="Reservation ID" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
         <Description>Specify the string that represents the reservation’s unique identifier.</Description>
       </Parameter>
       <Parameter Name="appName" alias="App Name" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
-        <Description>Specify the app name.</Description>
+        <Description>Specify the name of the App.</Description>
       </Parameter>
       <Parameter Name="resultXml" alias="Result XML" Type="string" Default="" Lang="tcl" MandatoryValue="false" Direction="out">
         <Description>Specify the variable for the XML output.</Description>
@@ -11512,14 +11421,14 @@
     <Exceptions Lang="library" />
     <Exceptions Lang="xmlrpc" />
   </Command>
-  <Command Name="GetAppsDetailsInReservation" Title="Retrieves information on the specified apps in the reservation." Lang="all" Category="Reservation operations\Apps">
-    <Description>Retrieves information on the specified apps in the reservation.</Description>
+  <Command Name="GetAppsDetailsInReservation" Title="Retrieves information on Apps in the reservation." Lang="all" Category="Reservation operations\Apps">
+    <Description>Retrieves information on Apps in the reservation.</Description>
     <Parameters>
       <Parameter Name="reservationId" alias="Reservation ID" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
         <Description>Specify the string that represents the reservation’s unique identifier.</Description>
       </Parameter>
       <Parameter Name="appNames" alias="Apps Names" Type="string[]" Default="" Lang="all" MandatoryValue="true" Direction="in">
-        <Description>Specify the apps names.</Description>
+        <Description>Specify the name of the Apps.</Description>
       </Parameter>
       <Parameter Name="resultXml" alias="Result XML" Type="string" Default="" Lang="tcl" MandatoryValue="false" Direction="out">
         <Description>Specify the variable for the XML output.</Description>
@@ -11870,9 +11779,15 @@
   <Command Name="SecureLogon" Title="Log in to the TestShell service using the AuthToken." Lang="all" Category="User management\Login">
     <Description>Logs in a user with a token. If no domain is specified, this method logs the user in to the global (default) domain.</Description>
     <Parameters>
-      <Parameter Name="token" alias="Token" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in"><Description>Token to logon with.</Description></Parameter>
-      <Parameter Name="domainName" alias="Domain Name" Type="string" Default="Global" Lang="all" MandatoryValue="false" Direction="in"><Description>Specify the name of the domain. If no domain is specified, it logs the user in to the global (default) domain.</Description></Parameter>
-      <Parameter Name="resultXml" alias="Result XML" Type="string" Default="" Lang="tcl" MandatoryValue="false" Direction="out"><Description>Specify the variable for the XML output. If a variable is not provided, the results will be sent to stdout.</Description></Parameter>
+      <Parameter Name="token" alias="Token" Type="string" Default="" Lang="all" MandatoryValue="true" Direction="in">
+        <Description>Token to logon with.</Description>
+      </Parameter>
+      <Parameter Name="domainName" alias="Domain Name" Type="string" Default="Global" Lang="all" MandatoryValue="false" Direction="in">
+        <Description>Specify the name of the domain. If no domain is specified, it logs the user in to the global (default) domain.</Description>
+      </Parameter>
+      <Parameter Name="resultXml" alias="Result XML" Type="string" Default="" Lang="tcl" MandatoryValue="false" Direction="out">
+        <Description>Specify the variable for the XML output. If a variable is not provided, the results will be sent to stdout.</Description>
+      </Parameter>
     </Parameters>
     <Syntax Lang="tcl">::TestShellAPI::SecureLogon token domainName ?resultXml?</Syntax>
     <Syntax Lang="cSharp">SecureLogon(token,domainName);</Syntax>

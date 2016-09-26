@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="ApiArgumentObjects"
+    elementFormDefault="qualified"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+
+  <!-- xsd.exe ApiArgumentObjects.xsd /classes /namespace:QualiSystems.Infrastructure.ApiArguments-->
+  <!--  Classes-->
+  <xs:element name="ApiEditAppRequest" nillable="true" type="ApiEditAppRequest" />
+
+  <!--  Type Definitions -->
+  
+  <xs:complexType name="ApiEditAppRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="NewName" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AppDetails" type="AppDetails" />
+      <xs:element minOccurs="0" maxOccurs="1" name="DefaultDeployment" type="DefaultDeployment" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="AppDetails">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="ModelName" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Attributes" type="ArrayOfNameValuePair" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Driver" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfNameValuePair">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="NameValuePair" nillable="true" type="NameValuePair" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="NameValuePair">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DefaultDeployment">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Deployment" type="Deployment" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Installation" type="Installation" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Deployment">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="CloudProviderId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Attributes" type="ArrayOfNameValuePair" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Installation">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Attributes" type="ArrayOfNameValuePair" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Script" type="Script" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Script">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Inputs" type="ArrayOfScriptInput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfScriptInput">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ScriptInput" nillable="true" type="ScriptInput" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ScriptInput">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
