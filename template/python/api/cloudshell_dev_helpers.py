@@ -9,6 +9,7 @@ CONNECTIVITY_DETAILS_TEMPLATE = '"tsAPIPort": "{cloudshell_api_port}",'\
 	'"{server_address}"'
 
 RESERVATIONDETAILS_TEMPLATE = '"environmentName":"{environment_name}",'\
+    '"environmentPath":"{environment_path}",'\
 	'"domain":"{domain}", "description":'\
 	'"{description}","parameters":{parameters_template},"ownerUser":'\
 	'"{owner_user}","ownerPass":"{owner_pass}","id":"{id}"'
@@ -129,7 +130,7 @@ def _bootstrap_data(user, password, domain, reservation_id,
         reservation_details = RESERVATIONDETAILS_TEMPLATE.\
             format(id=reservation_id, domain='Global',
                    description='', environment_name='',
-                   parameters_template='[]',
+                   environment_path='', parameters_template='[]',
                    owner_user=user, owner_pass=password)
 
         os.environ['qualiConnectivityContext'] = '{' + quali_connectivity + '}'
@@ -145,6 +146,7 @@ def _bootstrap_data(user, password, domain, reservation_id,
             format(id=reservation_id, domain=reservation_desc.DomainName,
                    description=reservation_desc.Description,
                    parameters_template='{' + parameters_details + '}',
+                   environmment_path=reservation_desc.Name,
                    environment_name=reservation_desc.Name,
                    owner_user=user, owner_pass=password)
 
