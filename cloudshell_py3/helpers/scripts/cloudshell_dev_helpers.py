@@ -9,7 +9,6 @@ CONNECTIVITY_DETAILS_TEMPLATE = '"tsAPIPort": "{cloudshell_api_port}",'\
 	'"{server_address}"'
 
 RESERVATIONDETAILS_TEMPLATE = '"environmentName":"{environment_name}",'\
-    '"environmentPath":"{environment_path}",'\
 	'"domain":"{domain}", "description":'\
 	'"{description}","parameters":{parameters_template},"ownerUser":'\
 	'"{owner_user}","ownerPass":"{owner_pass}","id":"{id}"'
@@ -46,16 +45,15 @@ def attach_to_cloudshell_as(user, password, domain, reservation_id,
     as a context for the execution.
     This function simulates the same conditions so the script can be tested
     offline.
-
     :param str user: The user the driver should authenticate as
     :param str passwrd: Password for the specified user
     :param str reservation_id: The reservation the driver should attach to
-    :param str server_address: The address of the CloudShell server (default to localhost)
+    :param str server_address: The address of the CloudShell server
+    (default to localhost)
     :param str cloudshell_api_port: The API port to use (default 8028)
     :param dict[str,str] command_parameters: user parameters passed to this command
     :param str resource_name: For resource commands only specify the name of the resource
     """
-
     _bootstrap_data(user, password, domain, reservation_id,
                     server_address, cloudshell_api_port,
                     command_parameters, resource_name, service_name)
@@ -70,23 +68,18 @@ def attach_to_cloudshell(filename='quali_config.json'):
     offline.
     Using this overload, all information is retrieved from a JSON config file
     which should be of the following format:
-
-    .. code-block:: python
-
-        {
-            "user" : "admin",
-            "password" : "admin",
-            "domain" : "Global",
-            "server_address" : "localhost",
-            "cloudshell_api_port" : "8028"
-        }
-
+    {
+        "user" : "admin",
+        "password" : "admin",
+        "domain" : "Global",
+        "server_address" : "localhost",
+        "cloudshell_api_port" : "8028"
+    }
     :param str filename: The configuration filename path
     """
-
     if is_dev_mode():
         try:
-            with open(filename, "r") as myfile:
+            with open("quali_config.json", "r") as myfile:
                 data = myfile.read()
             info = json.loads(data)
             user = info['user']
@@ -116,16 +109,15 @@ def _bootstrap_data(user, password, domain, reservation_id,
     as a context for the execution.
     This function simulates the same conditions so the script can be tested
     offline.
-
     :param str user: The user the driver should authenticate as
     :param str passwrd: Password for the specified user
     :param str reservation_id: The reservation the driver should attach to
-    :param str server_address: The address of the CloudShell server  (default to localhost)
+    :param str server_address: The address of the CloudShell server
+    (default to localhost)
     :param str cloudshell_api_port: The API port to use (default 8028)
     :param dict[str,str] command_parameters: user parameters passed to this command
     :param str resource_name: For resource commands only specify the name of the resource
     """
-
     if is_dev_mode():
         # We assume that if the env. variable doesn't exist we need to bootstrap
         quali_connectivity = CONNECTIVITY_DETAILS_TEMPLATE.\
@@ -137,7 +129,7 @@ def _bootstrap_data(user, password, domain, reservation_id,
         reservation_details = RESERVATIONDETAILS_TEMPLATE.\
             format(id=reservation_id, domain='Global',
                    description='', environment_name='',
-                   environment_path='', parameters_template='[]',
+                   parameters_template='[]',
                    owner_user=user, owner_pass=password)
 
         os.environ['qualiConnectivityContext'] = '{' + quali_connectivity + '}'
@@ -151,10 +143,9 @@ def _bootstrap_data(user, password, domain, reservation_id,
 
         reservation_details = RESERVATIONDETAILS_TEMPLATE.\
             format(id=reservation_id, domain=reservation_desc.DomainName,
-                   description='',
+                   description=reservation_desc.Description,
                    parameters_template='{' + parameters_details + '}',
-                   environmment_path=reservation_desc.Name,
-                   environment_name='',
+                   environment_name=reservation_desc.Name,
                    owner_user=user, owner_pass=password)
 
         # Update the reservation details again with the full info

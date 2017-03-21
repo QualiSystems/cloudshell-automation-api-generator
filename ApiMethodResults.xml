@@ -18,6 +18,7 @@
     <DecryptPassword>AttributeValueInfo</DecryptPassword>
     <DisconnectRoutesInReservation>EndPointConnectionInfo</DisconnectRoutesInReservation>
     <ExecuteCommand>CommandExecutionCompletedResultInfo</ExecuteCommand>
+    <GetAppsDetailsInReservation>ReservationAppsResponseInfo</GetAppsDetailsInReservation>
     <ExecuteEnvironmentCommand>CommandExecutionCompletedResultInfo</ExecuteEnvironmentCommand>
     <ExecuteResourceCommand>CommandExecutionCompletedResultInfo</ExecuteResourceCommand>
     <ExecuteResourceConnectedCommand>CommandExecutionCompletedResultInfo</ExecuteResourceConnectedCommand>
@@ -82,5 +83,6 @@
     <ExecuteDeployAppCommand>AppDeploymentyInfo</ExecuteDeployAppCommand>
     <ExecuteInstallAppCommand>CommandExecutionCompletedResultInfo</ExecuteInstallAppCommand>
     <ExecuteDeployAppCommandBulk>BulkAppDeploymentyInfo</ExecuteDeployAppCommandBulk>
-    <GetAppsDetailsInReservation>ReservationAppsResponseInfo</GetAppsDetailsInReservation>
+    <GetModelUsageReport>GetModelUsageReportResponseInfo</GetModelUsageReport>
+    <DeployAppToCloudProviderBulk>DeployAppToCloudProviderBulkInfo</DeployAppToCloudProviderBulk>
 </Methods>
