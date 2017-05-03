@@ -615,6 +615,7 @@ class CloudShellAPIGenerator:
         attribute_type = attribute_type.replace('string', 'str')
         attribute_type = attribute_type.replace('boolean', 'bool')
         attribute_type = attribute_type.replace('double', 'float')
+        attribute_type = attribute_type.replace('long', "int")
 
         response_data.object_comment_attributes[attribute_name] = attribute_type
         if class_name == attribute_type:
@@ -878,7 +879,7 @@ class CloudShellAPIGenerator:
             if len(attributes) != 0:
                 attributes = attributes[:-1]
                 attributes += '\n'
-                attributes +=(' ' * 8) + "CommonResponseInfo.__init__(self, xml_object, find_prefix)"
+                attributes += (' ' * 8) + "CommonResponseInfo.__init__(self, xml_object, find_prefix)"
                 if class_object.parent_type != 'CommonResponseInfo':
                     attributes += '\n'
                     attributes += (' ' * 8) + class_object.parent_type + ".__init__(self, xml_object, find_prefix)"
@@ -914,7 +915,7 @@ class CloudShellAPIGenerator:
 
             decription_node = XMLWrapper.get_child_node(child_node, 'Description')
             command_description = ''
-            if decription_node != None:
+            if decription_node is not None:
                 command_description = XMLWrapper.get_node_text(decription_node)
 
             parameters_node = XMLWrapper.get_child_node(child_node, 'Parameters')
@@ -922,7 +923,7 @@ class CloudShellAPIGenerator:
 
             excluded_params = dict()
 
-            if parameters_node != None:
+            if parameters_node is not None:
                 for parameter_node in parameters_node:
                     direction_attr = XMLWrapper.get_node_attr(parameter_node, 'Direction')
                     if direction_attr != 'in':
@@ -993,18 +994,18 @@ class CloudShellAPIGenerator:
             self._pack_data()
 
 if __name__ == '__main__':
-    print 'Run generating...'
+    print('Run generating...')
 
     parser = ArgumentParser()
 
     parser.add_argument("--input_xml", action="store", dest="api_documentation_path",
-                        default="APIDocumentation_v6.xml", help="API requests file specification")
+                        default="APIDocumentation_v7.xml", help="API requests file specification")
     parser.add_argument("--input_xsd", action="store", dest="api_response_path",
-                        default="ApiCommandResult_v6.xsd", help="API response file specification")
+                        default="ApiCommandResult_v7.xsd", help="API response file specification")
     parser.add_argument("--method_result", action="store", dest="api_methods_result",
                         default="ApiMethodResults.xml", help="API requests file specification")
     parser.add_argument("--version", action="store", dest="version",
-                        default="6.4.0", help="API requests file specification")
+                        default="8.0.0", help="API requests file specification")
     parser.add_argument("--output_dir", action="store", dest="output_dir",
                         help="API requests file specification")
     parser.add_argument("--package_name", action="store", dest="package_name",

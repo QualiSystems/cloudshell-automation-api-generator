@@ -1,11 +1,33 @@
 # -*- coding: utf-8 -*-
 
-import xml.etree.ElementTree as etree
-import urllib2 as urllib23
-from xml.sax.saxutils import escape
 import importlib
 import types
+import sys
+import xml.etree.ElementTree as etree
+
 from collections import OrderedDict
+from xml.sax.saxutils import escape
+
+
+if sys.version_info.major == 2:
+    import urllib2 as urllib_request
+    unicode = unicode
+    str = str
+    bytes = str
+    basestring = basestring
+    TYPE_TYPE = types.TypeType
+    TYPE_CLASS = types.ClassType
+elif sys.version_info.major == 3:
+    import urllib.request as urllib_request
+    str = str
+    unicode = str
+    bytes = bytes
+    basestring = (str, bytes)
+    TYPE_TYPE = type
+    TYPE_CLASS = type
+else:
+    raise
+
 
 class XMLWrapper:
     @staticmethod
@@ -60,10 +82,13 @@ class XMLWrapper:
     def getStringFromXML(node, pretty_print=False):
         return etree.tostring(node, pretty_print=pretty_print)
 
+
 # map request class
 class CommonAPIRequest:
     def __init__(self, **kwarg):
-        for key, value in kwarg.items():
+        self.attributes = []
+        for key, value in sorted(kwarg.items()):
+            self.attributes.append(key)
             setattr(self, key, value)
 
     @staticmethod
@@ -91,13 +116,16 @@ class CommonAPIRequest:
                 data_list.append(CommonAPIRequest._checkContainerValue(value))
             return data_list
 
-        data_dict = dict()
+        data_dict = OrderedDict()
         data_dict['__name__'] = data.__class__.__name__
-        for key, value in data.__dict__.items():
-            data_dict[key] = CommonAPIRequest._checkContainerValue(value)
+        for key in data.attributes:
+            data_dict[key] = CommonAPIRequest._checkContainerValue(getattr(data, key))
+        # for key, value in data.__dict__.items():
+        #     data_dict[key] = CommonAPIRequest._checkContainerValue(value)
 
         return data_dict
 # end map request class
+
 
 class CommonResponseInfo:
     def _attributeCastToType(self, data_str, cast_type_name):
@@ -118,7 +146,7 @@ class CommonResponseInfo:
                     data = (data_str.lower() in ['true', '1', 'yes', 'on'])
                 else:
                     data = cast_type(data_str)
-            except ValueError, err:
+            except ValueError as err:
                 pass
 
         return data
@@ -158,7 +186,7 @@ class CommonResponseInfo:
         empty_object_size = len(self.__dict__)
 
         for name, attr_type in self.__dict__.items():
-            if not isinstance(attr_type, (types.TypeType, types.ClassType)) and not isinstance(attr_type, dict):
+            if not isinstance(attr_type, (TYPE_TYPE, TYPE_CLASS)) and not isinstance(attr_type, dict):
                 continue
 
             if not isinstance(attr_type, dict):
@@ -202,7 +230,7 @@ class CommonResponseInfo:
                             data_list.append(data_object)
                             child_count += 1
 
-                    # I think its a logical bug, but ...
+                    # I think that it is a logical bug, but ...
                     if child_count == 0:
                         for list_node in xml_object:
                             if XMLWrapper.getNodeName(list_node) == name:
@@ -223,6 +251,7 @@ class CommonResponseInfo:
     def __init__(self, xml_object, find_prefix):
         self._parseAttributesData(self.__class__, xml_object, find_prefix)
 
+
 class CommonApiResult:
     def __init__(self, xml_object):
         error_node = XMLWrapper.getChildNode(xml_object, 'Error')
@@ -237,7 +266,7 @@ class CommonApiResult:
         if response_info_node is not None:
             find_prefix = XMLWrapper.getNodePrefix(response_info_node, 'xsi')
             type_attr = XMLWrapper.getNodeAttr(response_info_node, find_prefix + 'type')
-            if not type_attr is None:
+            if type_attr is not None:
                 response_class = CommonApiResult.importAPIClass(type_attr)
                 if response_class is not None:
                     self.response_info = response_class(response_info_node, find_prefix)
@@ -254,6 +283,7 @@ class CommonApiResult:
             return getattr(module, name)
 
         return None
+
 
 class CloudShellAPIError(Exception):
     def __init__(self, code, message, rawxml):
@@ -281,7 +311,8 @@ class CommonAPISession:
     def _replaceSendValue(self, data):
         """Normalize xml string, escape special xml characters
         """
-        if data is None: return u''
+        if data is None:
+            return u''
 
         try:
             data_str = unicode(data)
@@ -320,40 +351,10 @@ class CommonAPISession:
         """
         operation_url = str(self.url + operation)
 
-        request_object = urllib23.Request(operation_url, message.encode('utf-8'), request_headers)
-        response = urllib23.urlopen(request_object)
+        request_object = urllib_request.Request(operation_url, message.encode('utf-8'), request_headers)
+        response = urllib_request.urlopen(request_object)
 
         return response.read()
-
-    # THE METHOD TO DELETE
-    def _serializeRequestData(self, object_data, prev_type=None):
-        """Deprecated method which generated xml request using string concatenation, replaced with _new_serializeRequestData
-        """
-        request_str = ''
-        if isinstance(object_data, dict):
-            if len(object_data) == 0:
-                return request_str
-
-            if '__name__' not in object_data:
-                raise Exception('CloudShell API', "Object data doesn't have '__name__' attribute!")
-
-            request_str += '<' + object_data['__name__'] + '>\n'
-            for key, value in object_data.items():
-                if value is None or key == '__name__':
-                    continue
-                request_str += '<' + key + '>' + self._serializeRequestData(value) + '</' + key + '>\n'
-            request_str += '</' + object_data['__name__'] + '>\n'
-        elif isinstance(object_data, list):
-            request_str += '\n'
-            for value in object_data:
-                request_str += self._serializeRequestData(value, list())
-        elif isinstance(object_data, basestring) or isinstance(object_data, int) or isinstance(object_data, float):
-            if prev_type is not None and isinstance(prev_type, list):
-                request_str += '<string>' + self._replaceSendValue(str(object_data)) + '</string>\n'
-            else:
-                request_str += self._replaceSendValue(str(object_data))
-
-        return request_str
 
     def _new_serializeRequestData(self, root_node, object_data, prev_type=None):
         """Generate xml from received request data using etree.xml
@@ -369,14 +370,13 @@ class CommonAPISession:
                 if value is None:
                     continue
 
-
                 if isinstance(value, basestring):
                     new_node = etree.SubElement(working_node, key)
                     new_node.text = value
 
                 else:
                     child_node = working_node
-                    if (isinstance(value, list)):
+                    if isinstance(value, list):
                         child_node = etree.SubElement(working_node, key)
                     serialized_node = self._new_serializeRequestData(child_node, value)
             return root_node
@@ -395,7 +395,6 @@ class CommonAPISession:
                 root_node.text = self._to_unicode_string(object_data)
 
         return root_node
-
 
     def generateAPIRequest(self, kwargs):
         """
@@ -418,7 +417,7 @@ class CommonAPISession:
             child_node = etree.SubElement(request_node, name)
             self._new_serializeRequestData(child_node, kwargs[name])
 
-        response_str = self._sendRequest(self.username, self.domain, method_name, etree.tostring(request_node))
+        response_str = self._sendRequest(self.username, self.domain, method_name, etree.tostring(request_node).decode("utf-8"))
 
         response_str = response_str.replace('xmlns="http://schemas.qualisystems.com/ResourceManagement/ApiCommandResult.xsd"', '') \
             .replace('&#x0;', '<NUL>')
@@ -434,11 +433,10 @@ class CommonAPISession:
         else:
             return api_result.response_info
 
-
     def __prettify_xml(self, elem):
         """Return a pretty-printed XML string for the Element.
         """
-        from xml.dom.minidom import parse, parseString
+        from xml.dom.minidom import parseString
         rough_string = etree.tostring(elem, 'utf-8')
         reparsed = parseString(rough_string)
         return reparsed.toprettyxml(indent="\t")

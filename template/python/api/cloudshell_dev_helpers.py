@@ -104,7 +104,7 @@ def attach_to_cloudshell(filename='quali_config.json'):
                             command_parameters, resource_name,service_name)
 
         except IOError:
-            print 'No config file found at:', filename
+            print('No config file found at: {}'.format(filename))
 
 
 def _bootstrap_data(user, password, domain, reservation_id,
